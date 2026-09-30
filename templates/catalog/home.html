@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% load catalog_tags %}
+
+{% block meta_description %}VEXOR GAMING - Tu tienda de hardware y periféricos gamer. Tarjetas gráficas, procesadores, RAM, teclados, mouse, monitores y más. Mejores precios y garantía.{% endblock %}
+
+{% block title %}VEXOR GAMING - Hardware y Periféricos Gamer{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-gradient-to-b from-gray-900 via-gray-950 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-20 lg:py-32">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <!-- Hero Content -->
+            <div class="text-center lg:text-left" x-data="{ loaded: false }" x-init="loaded = true">
+                <!-- Badge -->
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-600/20 text-primary-400 rounded-full text-sm font-medium mb-6" x-show="loaded" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
+                    <svg class="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+                    Envío gratis en pedidos > $100
+                </span>
+
+                <!-- Title -->
+                <h1 class="font-orbitron text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight mb-6 bg-gradient-to-r from-white via-gray-200 to-primary-400 dark:from-white dark:via-gray-300 dark:to-primary-400 bg-clip-text text-transparent" x-show="loaded" x-transition:enter="transition ease-out duration-700 delay-100" x-transition:enter-start="opacity-0 transform translate-y-6" x-transition:enter-end="opacity-100 transform translate-y-0">
+                    Potencia tu
+                    <span class="block">juego al máximo</span>
+                </h1>
+
+                <!-- Subtitle -->
+                <p class="text-lg sm:text-xl text-gray-300 dark:text-gray-400 mb-8 max-w-xl mx-auto lg:mx-0" x-show="loaded" x-transition:enter="transition ease-out duration-700 delay-200" x-transition:enter-start="opacity-0 transform translate-y-6" x-transition:enter-end="opacity-100 transform translate-y-0">
+                    Hardware y periféricos de alto rendimiento para gamers exigentes. 
+                    Las mejores marcas, precios competitivos y garantía oficial.
+                </p>
+
+                <!-- CTA Buttons -->
+                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4" x-show="loaded" x-transition:enter="transition ease-out duration-700 delay-300" x-transition:enter-start="opacity-0 transform translate-y-6" x-transition:enter-end="opacity-100 transform translate-y-0">
+                    <a href="{% url 'catalog:shop' %}" class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-all duration-200 shadow-lg shadow-primary-600/30">
+                        Ver catálogo
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </a>
+                    <a href="{% url 'catalog:shop_category' category_slug='tarjetas-graficas' %}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-gray-700 dark:border-gray-300 text-gray-200 dark:text-gray-100 font-semibold rounded-lg hover:border-primary-500 hover:text-primary-400 hover:bg-primary-500/10 transition-all duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        GPUs Gaming
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="mt-12 grid grid-cols-3 gap-6 text-center" x-show="loaded" x-transition:enter="transition ease-out duration-700 delay-400" x-transition:enter-start="opacity-0 transform translate-y-6" x-transition:enter-end="opacity-100 transform translate-y-0">
+                    <div class="p-4 bg-white/5 dark:bg-white/5 rounded-xl border border-white/10">
+                        <div class="font-orbitron text-3xl font-bold text-primary-400 mb-1" data-count="500">500+</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Productos</div>
+                    </div>
+                    <div class="p-4 bg-white/5 dark:bg-white/5 rounded-xl border border-white/10">
+                        <div class="font-orbitron text-3xl font-bold text-pink-400 mb-1" data-count="50">50+</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Marcas</div>
+                    </div>
+                    <div class="p-4 bg-white/5 dark:bg-white/5 rounded-xl border border-white/10">
+                        <div class="font-orbitron text-3xl font-bold text-yellow-400 mb-1" data-count="24">24h</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Envío express</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Visual -->
+            <div class="relative" x-show="loaded" x-transition:enter="transition ease-out duration-1000 delay-200" x-transition:enter-start="opacity-0 transform translate-x-8 scale-95" x-transition:enter-end="opacity-100 transform translate-x-0 scale-100">
+                <div class="relative aspect-square max-w-md mx-auto">
+                    <!-- Floating cards -->
+                    <div class="absolute inset-0" aria-hidden="true">
+                        <div class="absolute top-10 left-0 w-40 h-40 bg-gradient-to-br from-primary-500/20 to-transparent rounded-2xl blur-3xl animate-pulse-slow"></div>
+                        <div class="absolute bottom-10 right-0 w-40 h-40 bg-gradient-to-bl from-pink-500/20 to-transparent rounded-2xl blur-3xl animate-pulse-slow" style="animation-delay: 1s"></div>
+                    </div>
+
+                    <!-- Main illustration -->
+                    <div class="relative z-10 bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-900 dark:to-gray-950 rounded-2xl border border-gray-700 dark:border-gray-800 p-8 lg:p-12 shadow-2xl">
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- GPU -->
+                            <div class="col-span-2 relative">
+                                <div class="bg-gray-900 dark:bg-gray-950 rounded-xl p-6 border border-gray-700 relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-transparent"></div>
+                                    <div class="relative flex items-center justify-between">
+                                        <div>
+                                            <span class="text-xs font-medium text-primary-400 uppercase tracking-wider">NUEVO</span>
+                                            <h3 class="font-orbitron text-xl font-bold text-white mt-1">RTX 4090</h3>
+                                            <p class="text-gray-400 text-sm mt-1">24GB GDDR6X • DLSS 3.0</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-orbitron text-2xl font-bold text-primary-400">$1,799</div>
+                                            <div class="text-gray-500 line-through text-sm">$1,999</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CPU -->
+                            <div class="bg-gray-900 dark:bg-gray-950 rounded-xl p-4 border border-gray-700">
+                                <span class="text-xs font-medium text-pink-400 uppercase tracking-wider">CPU</span>
+                                <h4 class="font-orbitron text-lg font-bold text-white mt-1">i9-14900K</h4>
+                                <p class="text-gray-400 text-xs mt-1">24 Cores • 5.8 GHz</p>
+                                <div class="font-orbitron text-lg font-bold text-pink-400 mt-2">$589</div>
+                            </div>
+
+                            <!-- RAM -->
+                            <div class="bg-gray-900 dark:bg-gray-950 rounded-xl p-4 border border-gray-700">
+                                <span class="text-xs font-medium text-yellow-400 uppercase tracking-wider">RAM</span>
+                                <h4 class="font-orbitron text-lg font-bold text-white mt-1">DDR5 6000</h4>
+                                <p class="text-gray-400 text-xs mt-1">32GB (2x16) CL30</p>
+                                <div class="font-orbitron text-lg font-bold text-yellow-400 mt-2">$189</div>
+                            </div>
+
+                            <!-- Monitor -->
+                            <div class="bg-gray-900 dark:bg-gray-950 rounded-xl p-4 border border-gray-700">
+                                <span class="text-xs font-medium text-green-400 uppercase tracking-wider">MONITOR</span>
+                                <h4 class="font-orbitron text-lg font-bold text-white mt-1">27" 1440p</h4>
+                                <p class="text-gray-400 text-xs mt-1">240Hz • 0.03ms</p>
+                                <div class="font-orbitron text-lg font-bold text-green-400 mt-2">$449</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating particles -->
+                    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+                        {% for i in "12345678" %}
+                        <div class="absolute w-2 h-2 bg-primary-400/50 rounded-full" style="top: {{ forloop.counter0|add:10 }}%; left: {{ forloop.counter0|add:15 }}%; animation: float {{ forloop.counter0|add:3 }}s ease-in-out infinite;"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" aria-hidden="true">
+        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+        </svg>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-16 lg:py-24 bg-white dark:bg-gray-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="text-center mb-12">
+            <h2 class="font-orbitron text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3">Categorías principales</h2>
+            <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Encuentra todo lo que necesitas para tu setup gaming</p>
+        </header>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" role="list">
+            {% for category in categories %}
+            <a href="{{ category.get_absolute_url }}" class="group relative bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-900 dark:to-gray-950 rounded-2xl p-6 border border-gray-700 dark:border-gray-800 hover:border-primary-500/50 transition-all duration-300 flex flex-col items-center text-center" role="listitem">
+                <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary-500/20 to-pink-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    {% if category.icon %}
+                    <svg class="w-8 h-8 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        {% if category.icon == 'gpu' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7.196 7.196l1.414 1.414M15.414 15.414l1.414 1.414M7.196 16.804l1.414-1.414M15.414 8.586l1.414-1.414"/>{% endif %}
+                        {% if category.icon == 'cpu' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.177-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.015z"/>{% endif %}
+                        {% if category.icon == 'ram' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7v10M12 7v10M20 7v10M4 7h16M4 17h16"/>{% endif %}
+                        {% if category.icon == 'keyboard' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12.638h-7.5a.5.5 0 01-.424-.765l2.5-6a.5.5 0 00-.476-.424h-14a.5.5 0 00-.477.424l2.5 6a.5.5 0 01-.424.765H3v1.5a2.5 2.5 0 002.5 2.5h13a2.5 2.5 0 002.5-2.5v-1.5z"/>{% endif %}
+                        {% if category.icon == 'mouse' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>{% endif %}
+                        {% if category.icon == 'monitor' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>{% endif %}
+                    </svg>
+                    {% else %}
+                    <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    {% endif %}
+                </div>
+                <h3 class="font-orbitron text-lg font-semibold text-white mb-1">{{ category.name }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ category.product_count }} productos</p>
+            </a>
+            {% empty %}
+            <div class="col-span-full text-center py-12 text-gray-500">No hay categorías disponibles</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+{% if featured_products %}
+<section class="py-16 lg:py-24 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="font-orbitron text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">Productos destacados</h2>
+                <p class="text-gray-600 dark:text-gray-400">Nuestra selección premium para gamers exigentes</p>
+            </div>
+            <a href="{% url 'catalog:shop' %}" class="hidden sm:inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 font-medium hover:underline">
+                Ver todos
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </a>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6" role="list">
+            {% for product in featured_products %}
+                {% product_card product show_category=False show_brand=True %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Best Sellers -->
+{% if best_sellers %}
+<section class="py-16 lg:py-24 bg-white dark:bg-gray-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="font-orbitron text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">Más vendidos</h2>
+                <p class="text-gray-600 dark:text-gray-400">Los favoritos de la comunidad</p>
+            </div>
+            <a href="{% url 'catalog:shop' %}?sort=best_sellers" class="hidden sm:inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 font-medium hover:underline">Ver ranking</a>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
+            {% for product in best_sellers %}
+                {% product_card product %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- New Arrivals -->
+{% if new_arrivals %}
+<section class="py-16 lg:py-24 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="font-orbitron text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">Nuevos productos</h2>
+                <p class="text-gray-600 dark:text-gray-400">Lo último en tecnología gaming</p>
+            </div>
+            <a href="{% url 'catalog:shop' %}?sort=newest" class="hidden sm:inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 font-medium hover:underline">Ver novedades</a>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
+            {% for product in new_arrivals %}
+                {% product_card product %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Promo Banner -->
+<section class="py-16 lg:py-24 bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 relative overflow-hidden">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22 opacity=%220.03%22/%3E%3C/svg%3E')] opacity-10" aria-hidden="true"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <div class="max-w-3xl mx-auto">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-6">Oferta por tiempo limitado</span>
+            <h2 class="font-orbitron text-3xl lg:text-5xl font-black text-white mb-4">Arma tu PC Gaming</h2>
+            <p class="text-white/90 text-lg mb-8">Componentes compatibles, mejor precio garantizado y envío en 24h</p>
+            <a href="{% url 'catalog:shop' %}" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors shadow-lg">
+                Configurar ahora
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="py-16 lg:py-24 bg-white dark:bg-gray-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto text-center">
+            <h2 class="font-orbitron text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3">Únete a la comunidad</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Recibe ofertas exclusivas, novedades y guías de montaje en tu email</p>
+            <form class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" action="#" method="POST">
+                <label for="newsletter-email" class="sr-only">Email</label>
+                <input type="email" id="newsletter-email" name="email" placeholder="tu@email.com" required class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                <button type="submit" class="px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap">Suscribirse</button>
+            </form>
+            <p class="text-xs text-gray-500 dark:text-gray-500 mt-4">No spam, solo lo mejor. Puedes darte de baja cuando quieras.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

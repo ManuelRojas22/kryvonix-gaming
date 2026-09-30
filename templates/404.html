@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Página no encontrada - VEXOR GAMING{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4">
+    <div class="text-center max-w-md">
+        <!-- Error code animation -->
+        <div class="mb-8" x-data="{ float: true }" x-init="
+            gsap.to($el, {
+                y: -10,
+                duration: 2,
+                repeat: -1,
+                yoyo: true,
+                ease: 'power1.inOut'
+            });
+        ">
+            <span class="font-orbitron text-9xl lg:text-[12rem] font-black bg-gradient-to-r from-primary-600 via-pink-500 to-primary-600 bg-clip-text text-transparent animate-pulse">
+                404
+            </span>
+        </div>
+
+        <!-- Glitch effect text -->
+        <h1 class="font-orbitron text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Página no encontrada
+        </h1>
+
+        <p class="text-gray-600 dark:text-gray-400 mb-8 text-lg">
+            Lo sentimos, la página que buscas no existe o ha sido movida.
+            Puede que el enlace esté roto o hayas escrito mal la URL.
+        </p>
+
+        <!-- Action buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+                href="{% url 'catalog:home' %}"
+                class="group inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Volver al inicio
+            </a>
+            <a
+                href="{% url 'catalog:shop' %}"
+                class="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            >
+                Ir a la tienda
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Search shortcut -->
+        <div class="mt-10">
+            <p class="text-gray-500 dark:text-gray-500 text-sm mb-3">O busca lo que necesitas:</p>
+            <form action="{% url 'catalog:shop' %}" method="GET" class="max-w-xs mx-auto" role="search">
+                <label for="search-404" class="sr-only">Buscar productos</label>
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input
+                        type="search"
+                        id="search-404"
+                        name="q"
+                        placeholder="Buscar productos..."
+                        class="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    >
+                </div>
+            </form>
+        </div>
+
+        <!-- Fun gaming elements -->
+        <div class="mt-12 flex justify-center gap-8 opacity-50" aria-hidden="true">
+            <svg class="w-12 h-12 text-primary-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            <svg class="w-12 h-12 text-pink-500 animate-bounce" style="animation-delay: 0.2s" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+            </svg>
+            <svg class="w-12 h-12 text-yellow-500 animate-bounce" style="animation-delay: 0.4s" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7.196 7.196l1.414 1.414M15.414 15.414l1.414 1.414M7.196 16.804l1.414-1.414M15.414 8.586l1.414-1.414"/>
+            </svg>
+        </div>
+    </div>
+</div>
+{% endblock %}

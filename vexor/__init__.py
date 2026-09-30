@@ -1,0 +1,1 @@
+# VEXOR GAMING - Django Settings Package

@@ -1,0 +1,21 @@
+{
+  "name": "vexor-gaming",
+  "version": "1.0.0",
+  "description": "VEXOR GAMING - E-commerce de hardware y periféricos gamer",
+  "private": true,
+  "scripts": {
+    "dev": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch",
+    "build": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify",
+    "build:prod": "NODE_ENV=production tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
