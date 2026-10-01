@@ -39,7 +39,7 @@ class Category(TimeStampedModel):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('catalog:shop', kwargs={'category_slug': self.slug})
+        return reverse('catalog:shop_category', kwargs={'category_slug': self.slug})
 
     @property
     def product_count(self):

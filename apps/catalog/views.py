@@ -33,8 +33,8 @@ def home(request):
     ).select_related('brand', 'category').prefetch_related('images').order_by('-created_at')[:8]
 
     categories = Category.objects.filter(is_active=True).annotate(
-        product_count=Count('products', filter=Q(products__is_active=True))
-    ).filter(product_count__gt=0)[:6]
+        products_count=Count('products', filter=Q(products__is_active=True))
+    ).filter(products_count__gt=0)[:6]
 
     context = {
         'featured_products': featured_products,
@@ -125,8 +125,8 @@ def shop(request, category_slug=None):
     ).filter(product_count__gt=0)
 
     all_categories = Category.objects.filter(is_active=True).annotate(
-        product_count=Count('products', filter=Q(products__is_active=True))
-    ).filter(product_count__gt=0)
+        products_count=Count('products', filter=Q(products__is_active=True))
+    ).filter(products_count__gt=0)
 
     context = {
         'products': products_page,
