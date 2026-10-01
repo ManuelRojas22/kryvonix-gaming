@@ -82,7 +82,7 @@
                             <li>
                                 <a href="{{ cat.get_absolute_url }}{% if request.GET %}?{% for key, value in request.GET.items %}{% if key != 'category' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}" class="flex items-center justify-between px-3 py-2 {% if category and category.slug == cat.slug %}bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg{% endif %} transition-colors">
                                     <span>{{ cat.name }}</span>
-                                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ cat.product_count }}</span>
+                                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ cat.products_count }}</span>
                                     {% if category and category.slug == cat.slug %}<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>{% endif %}
                                 </a>
                             </li>
@@ -130,7 +130,7 @@
                             </div>
                             <button type="submit" class="w-full px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors text-sm">Filtrar</button>
                             {% if min_price or max_price %}
-                            <a href="{% url 'catalog:shop' %}{% querystring request min_price=None max_price=None %}" class="block text-center text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">Limpiar precio</a>
+                            <a href="{% url 'catalog:shop' %}{% querystring request.GET min_price=None max_price=None %}" class="block text-center text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">Limpiar precio</a>
                             {% endif %}
                         </form>
                     </div>
@@ -231,7 +231,7 @@
                     $el.querySelectorAll('a, button').forEach(el => observer.observe(el));
                 ">
                     {% if products.has_previous %}
-                    <a href="?{% querystring request page=products.previous_page_number %}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Página anterior">
+                    <a href="?{% querystring request.GET page=products.previous_page_number %}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Página anterior">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </a>
                     {% endif %}
@@ -240,12 +240,12 @@
                         {% if products.number == num %}
                         <span class="px-4 py-2 bg-primary-600 text-white font-semibold rounded-lg" aria-current="page">{{ num }}</span>
                         {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
-                        <a href="?{% querystring request page=num %}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">{{ num }}</a>
+                        <a href="?{% querystring request.GET page=num %}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">{{ num }}</a>
                         {% endif %}
                     {% endfor %}
 
                     {% if products.has_next %}
-                    <a href="?{% querystring request page=products.next_page_number %}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Página siguiente">
+                    <a href="?{% querystring request.GET page=products.next_page_number %}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Página siguiente">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </a>
                     {% endif %}
