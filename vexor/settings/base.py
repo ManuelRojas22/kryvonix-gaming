@@ -16,6 +16,9 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
+# Custom user model
+AUTH_USER_MODEL = 'accounts.User'
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -25,7 +28,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Local apps
+    'apps.accounts',
     'apps.catalog',
+    'apps.cart',
+    'apps.wishlist',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +58,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.catalog.context_processors.categories',
+                'apps.cart.context_processors.cart',
+                'apps.wishlist.context_processors.wishlist',
             ],
         },
     },
@@ -101,7 +109,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Login/Logout URLs (for future auth app)
+# Login/Logout URLs
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'catalog:home'
 LOGOUT_REDIRECT_URL = 'catalog:home'
