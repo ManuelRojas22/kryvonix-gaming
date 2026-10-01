@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Carrito - VEXOR GAMING{% endblock %}
+
+{% block content %}
+<section class="py-12 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-8">
+            <h1 class="font-orbitron text-3xl font-bold text-gray-900 dark:text-white mb-2">Carrito de compras</h1>
+            <p class="text-gray-600 dark:text-gray-400">{{ cart.item_count }} producto{{ cart.item_count|pluralize }} en tu carrito</p>
+        </div>
+
+        {% if cart.items.exists %}
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Cart Items -->
+            <div class="lg:col-span-2 space-y-4">
+                {% for item in cart.items.all %}
+                <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 flex gap-4" data-item-id="{{ item.id }}">
+                    <!-- Product Image -->
+                    <div class="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                        {% if item.product.primary_image %}
+                        <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-medium text-gray-900 dark:text-white truncate">
+                                    <a href="{{ item.product.get_absolute_url }}" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">{{ item.product.name }}</a>
+                                </h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ item.product.brand.name }}</p>
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">${{ item.unit_price|floatformat:2 }}</p>
+                            </div>
+                            <form method="post" action="{% url 'cart:remove' item.id %}" class="flex-shrink-0">
+                                {% csrf_token %}
+                                <button type="submit" class="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1" aria-label="Eliminar {{ item.product.name }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Quantity Selector -->
+                        <div class="mt-4 flex items-center gap-4">
+                            <form method="post" action="{% url 'cart:update' item.id %}" class="flex items-center gap-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="{{ item.quantity|add:'-1' }}">
+                                <button type="submit" {% if item.quantity <= 1 %}disabled{% endif %} class="w-8 h-8 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors" aria-label="Disminuir cantidad">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                </button>
+                            </form>
+                            <span class="w-10 text-center font-semibold text-gray-900 dark:text-white">{{ item.quantity }}</span>
+                            <form method="post" action="{% url 'cart:update' item.id %}" class="flex items-center gap-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="{{ item.quantity|add:'1' }}">
+                                <button type="submit" {% if item.quantity >= item.product.stock %}disabled{% endif %} class="w-8 h-8 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors" aria-label="Aumentar cantidad">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                </button>
+                            </form>
+                            <div class="ml-auto text-sm text-gray-500 dark:text-gray-400">
+                                Stock: {{ item.product.stock }}
+                            </div>
+                        </div>
+
+                        <!-- Item Total -->
+                        <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Subtotal</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">${{ item.total_price|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 sticky top-24">
+                    <h2 class="font-orbitron text-xl font-bold text-gray-900 dark:text-white mb-6">Resumen del pedido</h2>
+
+                    <dl class="space-y-4 mb-6">
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600 dark:text-gray-400">Subtotal ({{ cart.item_count }} items)</dt>
+                            <dd class="font-medium text-gray-900 dark:text-white">${{ cart.total_price|floatformat:2 }}</dd>
+                        </div>
+                        <div class="flex justify-between text-green-600 dark:text-green-400">
+                            <dt class="text-gray-600 dark:text-gray-400">Envío</dt>
+                            <dd class="font-medium">Gratis (pedidos > $100)</dd>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-500 dark:text-gray-500">
+                            <dt>Impuestos estimados</dt>
+                            <dd>Incluidos</dd>
+                        </div>
+                    </dl>
+
+                    <div class="border-t border-gray-200 dark:border-gray-800 pt-4 mb-6">
+                        <div class="flex justify-between text-lg">
+                            <dt class="font-semibold text-gray-900 dark:text-white">Total</dt>
+                            <dd class="font-orbitron font-bold text-primary-600 dark:text-primary-400">${{ cart.total_price|floatformat:2 }}</dd>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'orders:checkout' %}" class="btn-primary w-full py-3 text-center" {% if cart.total_price < 100 %}style="opacity: 0.7;"{% endif %}>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7z"/></svg>
+                        Ir al checkout
+                    </a>
+
+                    {% if cart.total_price < 100 %}
+                    <p class="mt-3 text-center text-sm text-gray-500 dark:text-gray-500">
+                        Añade ${{ 100|sub:cart.total_price|floatformat:2 }} más para envío gratis
+                    </p>
+                    {% endif %}
+                </div>
+
+                <!-- Continue Shopping -->
+                <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+                    <a href="{% url 'catalog:shop' %}" class="btn-secondary w-full text-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                        Seguir comprando
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty Cart -->
+        <div class="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800">
+            <svg class="w-24 h-24 mx-auto text-gray-300 dark:text-gray-600 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+            </svg>
+            <h2 class="font-orbitron text-2xl font-bold text-gray-900 dark:text-white mb-3">Tu carrito está vacío</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">Aún no has añadido productos. Explora nuestro catálogo y encuentra lo que necesitas.</p>
+            <a href="{% url 'catalog:shop' %}" class="btn-primary inline-flex">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                Ir a la tienda
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

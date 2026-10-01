@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registrarse - VEXOR GAMING{% endblock %}
+
+{% block content %}
+<section class="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
+    <div class="w-full max-w-md">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-8 shadow-lg">
+            <div class="text-center mb-8">
+                <a href="{% url 'catalog:home' %}" class="inline-flex items-center gap-2 text-2xl font-orbitron font-bold text-primary-600 dark:text-primary-400 mb-6">
+                    <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                        <rect width="32" height="32" rx="8" class="text-primary-600 dark:text-primary-400"/>
+                        <path d="M8 16L14 22L24 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>VEXOR</span>
+                </a>
+                <h1 class="font-orbitron text-2xl font-bold text-gray-900 dark:text-white mb-2">Crear cuenta</h1>
+                <p class="text-gray-600 dark:text-gray-400">Únete a la comunidad VEXOR GAMING</p>
+            </div>
+
+            <form method="post" novalidate class="space-y-5">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg p-4" role="alert">
+                    {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ form.first_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Apellido</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ form.last_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Usuario</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <div class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ form.username.errors }}</div>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Mínimo 3 caracteres, solo letras, números y @/./+/-/_</p>
+                </div>
+
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <div class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teléfono (opcional)</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                    <div class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ form.phone.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contraseña</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                    <div class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ form.password1.errors }}</div>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Mínimo 8 caracteres, con mayúscula, minúscula y número</p>
+                </div>
+
+                <div>
+                    <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirmar contraseña</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                    <div class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ form.password2.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-start gap-3">
+                    {{ form.newsletter }}
+                    <div class="mt-1">
+                        <label for="{{ form.newsletter.id_for_label }}" class="text-sm text-gray-600 dark:text-gray-400">
+                            Suscribirme al boletín de ofertas y novedades
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary w-full py-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                    Crear cuenta
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-600 dark:text-gray-400 text-sm">
+                    ¿Ya tienes cuenta?
+                    <a href="{% url 'accounts:login' %}" class="text-primary-600 dark:text-primary-400 font-medium hover:underline ml-1">Inicia sesión</a>
+                </p>
+            </div>
+
+            <p class="mt-4 text-center text-xs text-gray-500 dark:text-gray-500">
+                Al registrarte, aceptas nuestros
+                <a href="#" class="text-primary-600 dark:text-primary-400 hover:underline">Términos y condiciones</a>
+                y
+                <a href="#" class="text-primary-600 dark:text-primary-400 hover:underline">Política de privacidad</a>.
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

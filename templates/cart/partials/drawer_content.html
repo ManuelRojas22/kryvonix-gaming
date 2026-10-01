@@ -1,0 +1,90 @@
+<!-- Cart Drawer Content Partial -->
+<div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+        <h2 class="font-orbitron text-lg font-bold text-gray-900 dark:text-white">Carrito ({{ cart.item_count }})</h2>
+        <button onclick="closeCartDrawer()" class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" aria-label="Cerrar carrito">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+    </div>
+
+    <!-- Items -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        {% if cart.items.exists %}
+        {% for item in cart.items.all %}
+        <div class="flex gap-3" data-item-id="{{ item.id }}">
+            <div class="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                {% if item.product.primary_image %}
+                <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                {% endif %}
+            </div>
+            <div class="flex-1 min-w-0">
+                <h4 class="font-medium text-gray-900 dark:text-white truncate">{{ item.product.name }}</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400">${{ item.unit_price|floatformat:2 }}</p>
+                <div class="flex items-center gap-2 mt-2">
+                    <form method="post" action="{% url 'cart:update' item.id %}" class="flex items-center gap-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="{{ item.quantity|add:'-1' }}">
+                        <button type="submit" {% if item.quantity <= 1 %}disabled{% endif %} class="w-6 h-6 rounded border border-gray-300 dark:border-gray-600 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 flex items-center justify-center" aria-label="Disminuir">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                        </button>
+                    </form>
+                    <span class="w-8 text-center font-medium text-gray-900 dark:text-white">{{ item.quantity }}</span>
+                    <form method="post" action="{% url 'cart:update' item.id %}" class="flex items-center gap-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="{{ item.quantity|add:'1' }}">
+                        <button type="submit" {% if item.quantity >= item.product.stock %}disabled{% endif %} class="w-6 h-6 rounded border border-gray-300 dark:border-gray-600 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 flex items-center justify-center" aria-label="Aumentar">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+                <span class="font-semibold text-gray-900 dark:text-white">${{ item.total_price|floatformat:2 }}</span>
+                <form method="post" action="{% url 'cart:remove' item.id %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors p-1" aria-label="Eliminar">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <p class="text-gray-500 dark:text-gray-500">Tu carrito está vacío</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    {% if cart.items.exists %}
+    <div class="border-t border-gray-200 dark:border-gray-800 p-4 space-y-4">
+        <dl class="space-y-2 text-sm">
+            <div class="flex justify-between">
+                <dt class="text-gray-600 dark:text-gray-400">Subtotal</dt>
+                <dd class="font-medium text-gray-900 dark:text-white">${{ cart.total_price|floatformat:2 }}</dd>
+            </div>
+            <div class="flex justify-between text-green-600 dark:text-green-400">
+                <dt class="text-gray-600 dark:text-gray-400">Envío</dt>
+                <dd class="font-medium">Gratis</dd>
+            </div>
+        </dl>
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-3">
+            <div class="flex justify-between text-lg font-bold">
+                <dt class="text-gray-900 dark:text-white">Total</dt>
+                <dd class="text-primary-600 dark:text-primary-400">${{ cart.total_price|floatformat:2 }}</dd>
+            </div>
+        </div>
+        <a href="{% url 'cart:detail' %}" class="btn-primary w-full text-center py-3 block">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Ver carrito y pagar
+        </a>
+    </div>
+    {% endif %}
+</div>

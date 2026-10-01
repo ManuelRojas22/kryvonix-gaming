@@ -47,3 +47,6 @@ htmlcov/
 
 # Tailwind
 .tailwind-cache/
+
+# Kilo
+.kilo/

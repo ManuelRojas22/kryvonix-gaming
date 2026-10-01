@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mi lista de deseos - VEXOR GAMING{% endblock %}
+
+{% block content %}
+<section class="py-12 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-8">
+            <h1 class="font-orbitron text-3xl font-bold text-gray-900 dark:text-white mb-2">Mi lista de deseos</h1>
+            <p class="text-gray-600 dark:text-gray-400">{{ wishlist.item_count }} producto{{ wishlist.item_count|pluralize }} guardado{{ wishlist.item_count|pluralize }}</p>
+        </div>
+
+        {% if wishlist.items.exists %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" role="list">
+            {% for item in wishlist.items.all %}
+            <article class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full" data-wishlist-item="{{ item.id }}">
+                <!-- Image -->
+                <div class="relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                    {% if item.product.primary_image %}
+                    <a href="{{ item.product.get_absolute_url }}" class="block" aria-label="{{ item.product.name }}">
+                        <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy">
+                    </a>
+                    {% else %}
+                    <a href="{{ item.product.get_absolute_url }}" class="block" aria-label="{{ item.product.name }}">
+                        <div class="w-full h-full flex items-center justify-center text-gray-400">
+                            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                    </a>
+                    {% endif %}
+
+                    <!-- Badges -->
+                    <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+                        {% if item.product.has_discount %}
+                        <span class="bg-primary-600 text-white text-xs font-semibold px-2 py-1 rounded-full">-{{ item.product.discount_percent }}%</span>
+                        {% endif %}
+                        {% if item.price_dropped %}
+                        <span class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Precio bajó {{ item.discount_percent }}%</span>
+                        {% endif %}
+                        {% if not item.product.in_stock %}
+                        <span class="bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Agotado</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Remove button -->
+                    <div class="absolute top-3 right-3">
+                        <form method="post" action="{% url 'wishlist:remove' item.product.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="p-2 bg-white/90 dark:bg-gray-900/90 rounded-full text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors shadow-md" aria-label="Eliminar {{ item.product.name }} de la lista">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="p-4 flex flex-col flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                        {% if item.product.category %}
+                        <a href="{{ item.product.category.get_absolute_url }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-primary-400 dark:hover:text-primary-400 transition-colors font-medium">{{ item.product.category.name }}</a>
+                        {% endif %}
+                        {% if item.product.brand %}
+                        <span class="text-gray-300 dark:text-gray-600">·</span>
+                        <a href="{{ item.product.brand.get_absolute_url }}" class="text-xs text-gray-500 dark:text-gray-400 hover:text-primary-400 dark:hover:text-primary-400 transition-colors font-medium capitalize">{{ item.product.brand.name }}</a>
+                        {% endif %}
+                    </div>
+
+                    <h3 class="font-orbitron font-semibold text-gray-900 dark:text-white text-lg mb-2 line-clamp-2 min-h-[2.5rem]">
+                        <a href="{{ item.product.get_absolute_url }}" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">{{ item.product.name }}</a>
+                    </h3>
+
+                    <!-- Price -->
+                    <div class="flex items-baseline gap-2 mb-3">
+                        <span class="font-orbitron font-bold text-xl text-gray-900 dark:text-white">${{ item.current_price|floatformat:2 }}</span>
+                        {% if item.product.has_discount %}
+                        <span class="text-gray-400 line-through text-sm">${{ item.product.price|floatformat:2 }}</span>
+                        {% endif %}
+                        {% if item.price_dropped %}
+                        <span class="text-green-600 dark:text-green-400 text-sm font-medium">−${{ item.savings|floatformat:2 }} ({{ item.discount_percent }}%)</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Stock -->
+                    <div class="flex items-center gap-2 text-xs mb-4">
+                        {% if item.product.in_stock %}
+                        <span class="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            {{ item.product.stock }} disponibles
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center gap-1 text-red-600 dark:text-red-400">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                            Agotado
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800 flex gap-2">
+                        <form method="post" action="{% url 'wishlist:move_to_cart' item.product.id %}" class="flex-1">
+                            {% csrf_token %}
+                            <button type="submit" {% if not item.product.in_stock %}disabled{% endif %} class="btn-primary w-full py-2 text-sm {% if not item.product.in_stock %}opacity-50 cursor-not-allowed{% endif %}">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                Al carrito
+                            </button>
+                        </form>
+                        <div class="flex items-center gap-1">
+                            <label class="flex items-center gap-1 cursor-pointer" title="Notificar bajada de precio">
+                                <input type="checkbox" {% if item.notify_price_drop %}checked{% endif %} hx-post="{% url 'wishlist:toggle_notify' item.product.id %}" hx-vals='{"notify_type": "price"}' class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                            </label>
+                            <label class="flex items-center gap-1 cursor-pointer" title="Notificar disponibilidad">
+                                <input type="checkbox" {% if item.notify_back_in_stock %}checked{% endif %} hx-post="{% url 'wishlist:toggle_notify' item.product.id %}" hx-vals='{"notify_type": "stock"}' class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty Wishlist -->
+        <div class="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800">
+            <svg class="w-24 h-24 mx-auto text-gray-300 dark:text-gray-600 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            <h2 class="font-orbitron text-2xl font-bold text-gray-900 dark:text-white mb-3">Tu lista de deseos está vacía</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">Guarda productos que te interesen para comprarlos luego o recibir notificaciones de precio.</p>
+            <a href="{% url 'catalog:shop' %}" class="btn-primary inline-flex">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                Explorar productos
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
