@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="es" x-data="theme()" x-init="initTheme()" :class="{ 'dark': isDark }">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +9,6 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
-    <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
