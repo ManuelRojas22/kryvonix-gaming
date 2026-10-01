@@ -140,7 +140,6 @@
 
       toggleTheme() {
         window.VexorTheme.toggle();
-        this.isDark = !this.isDark;
       },
     }));
   });
