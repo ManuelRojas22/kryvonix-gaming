@@ -18,6 +18,9 @@
     <!-- Tailwind CSS -->
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
 
+    <!-- Theme (must load before Alpine so the `theme` component registers) -->
+    <script src="{% static 'js/theme.js' %}"></script>
+
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 
@@ -45,7 +48,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <!-- Custom JS -->
-    <script src="{% static 'js/theme.js' %}"></script>
     <script src="{% static 'js/animations.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
 
