@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import TemplateView
 from apps.staff.views import (
     StaffLoginView, DashboardView, DashboardStatsView,
     CategoryListView, CategoryCreateView, CategoryUpdateView, CategoryDeleteView,
@@ -36,6 +37,11 @@ urlpatterns = [
     # Users
     path('usuarios/', UserListView.as_view(), name='user_list'),
     path('usuarios/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
+    # Orders (placeholder templates)
+    path('pedidos/', TemplateView.as_view(template_name='staff/orders/order_list.html'), name='order_list'),
+    path('pedidos/<int:pk>/', TemplateView.as_view(template_name='staff/orders/order_detail.html'), name='order_detail'),
+    # Reports
+    path('reportes/', TemplateView.as_view(template_name='staff/reports/dashboard.html'), name='reports_dashboard'),
     # AJAX endpoints
     path('ajax/generate-slug/', generate_slug, name='generate_slug'),
     path('ajax/product/<int:pk>/toggle-status/', toggle_product_status, name='toggle_product_status'),

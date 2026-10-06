@@ -1,0 +1,213 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Reportes - Panel Staff{% endblock %}
+{% block page_title %}Reportes{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">Reportes</h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Métricas y análisis de la tienda</p>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card-base p-6 bg-white dark:bg-gray-900">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ventas totales</p>
+          <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">$12,450.00</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+          <i data-lucide="trending-up" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+        </div>
+      </div>
+      <p class="mt-4 text-sm text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+        <i data-lucide="arrow-up" class="w-4 h-4"></i> +12% vs mes anterior
+      </p>
+    </div>
+
+    <div class="card-base p-6 bg-white dark:bg-gray-900">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pedidos</p>
+          <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">324</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+          <i data-lucide="shopping-cart" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+        </div>
+      </div>
+      <p class="mt-4 text-sm text-blue-600 dark:text-blue-400 font-medium flex items-center gap-1">
+        <i data-lucide="arrow-up" class="w-4 h-4"></i> +8% vs mes anterior
+      </p>
+    </div>
+
+    <div class="card-base p-6 bg-white dark:bg-gray-900">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ticket promedio</p>
+          <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">$38.42</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+          <i data-lucide="dollar-sign" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
+        </div>
+      </div>
+      <p class="mt-4 text-sm text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1">
+        <i data-lucide="arrow-up" class="w-4 h-4"></i> +3% vs mes anterior
+      </p>
+    </div>
+
+    <div class="card-base p-6 bg-white dark:bg-gray-900">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Conversión</p>
+          <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">3.2%</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+          <i data-lucide="target" class="w-6 h-6 text-orange-600 dark:text-orange-400"></i>
+        </div>
+      </div>
+      <p class="mt-4 text-sm text-orange-600 dark:text-orange-400 font-medium flex items-center gap-1">
+        <i data-lucide="arrow-down" class="w-4 h-4"></i> -0.4% vs mes anterior
+      </p>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card-base p-6 bg-white dark:bg-gray-900">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <i data-lucide="bar-chart-2" class="w-5 h-5 text-cyan-500"></i>
+        Ventas por día (últimos 30 días)
+      </h3>
+      <div class="h-64">
+        <canvas id="salesChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card-base p-6 bg-white dark:bg-gray-900">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <i data-lucide="pie-chart" class="w-5 h-5 text-cyan-500"></i>
+        Ventas por categoría
+      </h3>
+      <div class="h-64">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top products table -->
+  <div class="card-base overflow-hidden bg-white dark:bg-gray-900">
+    <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+        <i data-lucide="award" class="w-5 h-5 text-cyan-500"></i>
+        Top 10 productos más vendidos
+      </h3>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-800/50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ventas</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ingresos</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <td class="px-4 py-3 font-mono text-gray-900 dark:text-white">1</td>
+            <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">RTX 4090 24GB</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">Tarjetas Gráficas</td>
+            <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">45</td>
+            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">$80,955.00</td>
+          </tr>
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <td class="px-4 py-3 font-mono text-gray-900 dark:text-white">2</td>
+            <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">Ryzen 7 7800X3D</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">Procesadores</td>
+            <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">38</td>
+            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">$12,919.62</td>
+          </tr>
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <td class="px-4 py-3 font-mono text-gray-900 dark:text-white">3</td>
+            <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">DDR5 32GB 6000MHz</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">Memoria RAM</td>
+            <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">32</td>
+            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">$4,639.68</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  // Sales chart
+  const salesCtx = document.getElementById('salesChart');
+  if (salesCtx && typeof Chart !== 'undefined') {
+    new Chart(salesCtx, {
+      type: 'line',
+      data: {
+        labels: ['D1','D2','D3','D4','D5','D6','D7','D8','D9','D10','D11','D12','D13','D14','D15','D16','D17','D18','D19','D20','D21','D22','D23','D24','D25','D26','D27','D28','D29','D30'],
+        datasets: [{
+          label: 'Ventas ($)',
+          data: [420,380,450,520,480,510,600,550,580,620,590,610,650,680,720,700,750,780,800,820,850,870,900,920,950,980,1000,1020,1050,1080],
+          borderColor: 'rgb(6, 182, 212)',
+          backgroundColor: 'rgba(6, 182, 212, 0.1)',
+          tension: 0.3,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280' } },
+          x: { grid: { display: false }, ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280' } }
+        }
+      }
+    });
+  }
+
+  // Category chart
+  const catCtx = document.getElementById('categoryChart');
+  if (catCtx && typeof Chart !== 'undefined') {
+    new Chart(catCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['GPU', 'CPU', 'RAM', 'Almacenamiento', 'Placas Base', 'Fuentes', 'Gabinetes', 'Periféricos'],
+        datasets: [{
+          data: [35, 22, 15, 10, 8, 5, 3, 2],
+          backgroundColor: [
+            'rgba(6, 182, 212, 0.8)',
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(239, 68, 68, 0.8)',
+            'rgba(139, 92, 246, 0.8)',
+            'rgba(236, 72, 153, 0.8)',
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(20, 184, 166, 0.8)'
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280', padding: 16, usePointStyle: true, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}
