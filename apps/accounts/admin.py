@@ -31,14 +31,16 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
-@admin.register(Address)
-class AddressAdmin(admin.ModelAdmin):
-    list_display = ['user', 'full_name', 'city', 'state', 'type', 'is_default', 'created_at']
-    list_filter = ['type', 'is_default', 'country', 'created_at']
-    search_fields = ['user__email', 'full_name', 'city', 'address_line1']
-    list_editable = ['is_default']
-    raw_id_fields = ['user']
-    ordering = ['-created_at']
+# @admin.register(Address)
+# class AddressAdmin(admin.ModelAdmin):
+#     list_display = ['user', 'full_name', 'city', 'state', 'type', 'is_default', 'created_at']
+#     list_filter = ['type', 'is_default', 'country', 'created_at']
+#     search_fields = ['user__email', 'full_name', 'city', 'address_line1']
+#     list_editable = ['is_default']
+#     raw_id_fields = ['user']
+#     ordering = ['-created_at']
+#
+# NOTE: Address management moved to staff panel (/staff/usuarios/<pk>/)
 
 
 @admin.register(EmailVerificationToken)
