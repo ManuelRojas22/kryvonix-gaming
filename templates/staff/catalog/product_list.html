@@ -72,16 +72,18 @@
             <div class="flex items-center gap-4">
                 <span id="selectedCount" class="text-sm font-medium text-yellow-800 dark:text-yellow-400">0 seleccionados</span>
                 <span class="text-sm text-yellow-700 dark:text-yellow-500">Acciones en lote:</span>
-                <form method="post" action="{% url 'staff:bulk_action_products' %}" class="inline">
+<form method="post" action="{% url 'staff:bulk_action_products' %}" class="inline" id="bulkActionForm">
                     {% csrf_token %}
                     <input type="hidden" name="action" id="bulkAction">
                     <div id="selectedIds" class="hidden"></div>
-                    <select name="action" onchange="this.form.submit()" class="px-3 py-1.5 text-sm border border-yellow-300 dark:border-yellow-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500">
+                    <select name="action" onchange="handleBulkAction(this)" class="px-3 py-1.5 text-sm border border-yellow-300 dark:border-yellow-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500">
                         <option value="">-- Seleccionar acción --</option>
                         <option value="activate">Activar</option>
                         <option value="deactivate">Desactivar</option>
                         <option value="feature">Marcar destacados</option>
                         <option value="unfeature">Quitar destacados</option>
+                        <option value="apply_discount">Aplicar descuento...</option>
+                        <option value="remove_discount">Quitar descuento</option>
                         <option value="delete" class="text-red-600">Eliminar</option>
                     </select>
                 </form>
@@ -294,6 +296,94 @@
         })
         .catch(console.error);
     }
+
+    // Bulk discount modal
+    let bulkDiscountPercent = 0;
+    function showBulkDiscountModal() {
+        bulkDiscountPercent = 0;
+        const modal = document.getElementById('bulkDiscountModal');
+        const input = document.getElementById('bulkDiscountInput');
+        input.value = '';
+        modal.classList.remove('hidden');
+        setTimeout(() => input.focus(), 100);
+    }
+
+    function hideBulkDiscountModal() {
+        document.getElementById('bulkDiscountModal').classList.add('hidden');
+    }
+
+    function applyBulkDiscount() {
+        const percent = parseInt(document.getElementById('bulkDiscountInput').value);
+        if (isNaN(percent) || percent < 1 || percent > 99) {
+            alert('Ingrese un porcentaje válido (1-99)');
+            return;
+        }
+        const ids = getSelectedIds();
+        if (ids.length === 0) return;
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "staff:bulk_action_products" %}';
+        
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]').cloneNode(true);
+        form.appendChild(csrf);
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'apply_discount';
+        form.appendChild(actionInput);
+        
+        const percentInput = document.createElement('input');
+        percentInput.type = 'hidden';
+        percentInput.name = 'discount_percent';
+        percentInput.value = percent;
+        form.appendChild(percentInput);
+        
+        ids.forEach(id => {
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'ids';
+            idInput.value = id;
+            form.appendChild(idInput);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function handleBulkAction(select) {
+        const action = select.value;
+        const ids = getSelectedIds();
+        
+        if (!action) return;
+        
+        if (action === 'apply_discount') {
+            select.value = ''; // Reset dropdown
+            showBulkDiscountModal();
+            return;
+        }
+        
+        // For other actions, submit the form
+        const form = document.getElementById('bulkActionForm');
+        form.submit();
+    }
 </script>
+
+<!-- Bulk Discount Modal -->
+<div id="bulkDiscountModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div class="bg-white dark:bg-gray-900 rounded-xl p-6 w-full max-w-md mx-4 shadow-xl">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Aplicar Descuento en Lote</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Ingrese el porcentaje de descuento a aplicar a los productos seleccionados.</p>
+        <div class="mb-4">
+            <label for="bulkDiscountInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Descuento (%)</label>
+            <input type="number" id="bulkDiscountInput" min="1" max="99" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" placeholder="Ej: 15">
+        </div>
+        <div class="flex gap-3 justify-end">
+            <button onclick="hideBulkDiscountModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors">Cancelar</button>
+            <button onclick="applyBulkDiscount()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors">Aplicar</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 

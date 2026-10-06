@@ -342,6 +342,25 @@ def bulk_action_products(request):
         elif action == 'unfeature':
             products.update(is_featured=False)
             messages.success(request, f'{products.count()} productos quitados de destacados.')
+        elif action == 'apply_discount':
+            discount_percent = request.POST.get('discount_percent')
+            try:
+                pct = int(discount_percent)
+                if 1 <= pct <= 99:
+                    count = 0
+                    for product in products:
+                        if product.price:
+                            product.discount_price = round(product.price * (1 - pct / 100), 2)
+                            product.save(update_fields=['discount_price'])
+                            count += 1
+                    messages.success(request, f'Descuento del {pct}% aplicado a {count} productos.')
+                else:
+                    messages.error(request, 'Porcentaje de descuento inválido (1-99).')
+            except (ValueError, TypeError):
+                messages.error(request, 'Porcentaje de descuento inválido.')
+        elif action == 'remove_discount':
+            count = products.exclude(discount_price__isnull=True).update(discount_price=None)
+            messages.success(request, f'Descuento quitado de {count} productos.')
         elif action == 'delete':
             count = products.count()
             products.delete()
