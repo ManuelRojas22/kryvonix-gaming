@@ -331,6 +331,9 @@
 
 {% block extra_scripts %}
 <script>
+    // Detect dark mode for TinyMCE
+    const isDark = document.documentElement.classList.contains('dark');
+
     // Initialize TinyMCE
     tinymce.init({
         selector: '#id_description',
@@ -338,13 +341,42 @@
         menubar: false,
         plugins: 'lists link image table code',
         toolbar: 'undo redo | bold italic underline | bullist numlist | link image | code',
-        content_style: 'body { font-family: Inter, sans-serif; font-size: 14px; }',
+        skin: isDark ? 'oxide-dark' : 'oxide',
+        content_css: isDark ? 'dark' : 'default',
+        content_style: 'body { font-family: Inter, sans-serif; font-size: 14px; ' + (isDark ? 'background-color: #1f2937; color: #f9fafb;' : '') + ' }',
         setup: (editor) => {
             editor.on('change', () => {
                 editor.save();
             });
         }
     });
+
+    // Re-init TinyMCE when theme changes
+    const originalToggleTheme = window.toggleTheme;
+    if (typeof originalToggleTheme === 'function') {
+        window.toggleTheme = function() {
+            originalToggleTheme();
+            setTimeout(() => {
+                const newIsDark = document.documentElement.classList.contains('dark');
+                tinymce.get('id_description')?.destroy();
+                tinymce.init({
+                    selector: '#id_description',
+                    height: 300,
+                    menubar: false,
+                    plugins: 'lists link image table code',
+                    toolbar: 'undo redo | bold italic underline | bullist numlist | link image | code',
+                    skin: newIsDark ? 'oxide-dark' : 'oxide',
+                    content_css: newIsDark ? 'dark' : 'default',
+                    content_style: 'body { font-family: Inter, sans-serif; font-size: 14px; ' + (newIsDark ? 'background-color: #1f2937; color: #f9fafb;' : '') + ' }',
+                    setup: (editor) => {
+                        editor.on('change', () => {
+                            editor.save();
+                        });
+                    }
+                });
+            }, 50);
+        };
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         // Initialize Lucide icons
