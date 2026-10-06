@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
+from decimal import Decimal
 
 from apps.catalog.models import Category, Brand, Product, ProductImage, ProductSpec
 
@@ -105,7 +106,9 @@ class ProductForm(forms.ModelForm):
         # If discount_percent is provided, calculate discount_price
         if discount_percent is not None and price is not None:
             if 0 <= discount_percent <= 99:
-                calculated_discount = round(price * (1 - discount_percent / 100), 2)
+                # Use Decimal arithmetic to avoid float issues
+                discount_factor = Decimal('1') - Decimal(str(discount_percent)) / Decimal('100')
+                calculated_discount = (price * discount_factor).quantize(Decimal('0.01'))
                 cleaned_data['discount_price'] = calculated_discount
             elif discount_percent == 0:
                 cleaned_data['discount_price'] = None
