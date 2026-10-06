@@ -1,0 +1,424 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Dashboard - Panel Staff{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <!-- Productos -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Productos Totales</p>
+                    <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">{{ stats.productos_totales }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <i data-lucide="package" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center gap-4 text-sm">
+                <span class="text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> {{ stats.productos_activos }} activos
+                </span>
+                <span class="text-orange-600 dark:text-orange-400 font-medium flex items-center gap-1">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i> {{ stats.productos_stock_bajo }} stock bajo
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Stock Crítico</p>
+                    <p class="mt-1 text-3xl font-bold font-orbitron {% if stats.productos_sin_stock > 0 %}text-red-600 dark:text-red-400{% else %}text-gray-900 dark:text-white{% endif %}">{{ stats.productos_sin_stock }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
+                </div>
+            </div>
+            <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ stats.productos_stock_bajo }} productos con menos de 5 unidades</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios Registrados</p>
+                    <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">{{ stats.usuarios_totales }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+                </div>
+            </div>
+            <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ stats.usuarios_nuevos_mes }} nuevos este mes</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Carritos Activos (24h)</p>
+                    <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">{{ stats.carritos_activos }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <i data-lucide="shopping-cart" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
+                </div>
+            </div>
+            <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ stats.direcciones_totales }} direcciones guardadas</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Catálogo</p>
+                    <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">{{ stats.categorias }} cat · {{ stats.marcas }} mar</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                    <i data-lucide="folder-tree" class="w-6 h-6 text-cyan-600 dark:text-cyan-400"></i>
+                </div>
+            </div>
+            <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ stats.productos_destacados }} productos destacados</p>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Productos por Categoría -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <i data-lucide="pie-chart" class="w-5 h-5 text-cyan-500"></i>
+                Productos por Categoría
+            </h3>
+            <div class="h-64">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <i data-lucide="bar-chart-2" class="w-5 h-5 text-cyan-500"></i>
+                Estado de Stock
+            </h3>
+            <div class="h-64">
+                <canvas id="stockChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Productos Recientes -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="clock" class="w-5 h-5 text-cyan-500"></i>
+                    Productos Recientes
+                </h3>
+                <a href="{% url 'staff:product_list' %}" class="text-sm text-cyan-500 hover:text-cyan-600 font-medium">Ver todos →</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-800/50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                        {% for producto in productos_recientes %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    {% if producto.primary_image %}
+                                        <img src="{{ producto.primary_image.image.url }}" alt="{{ producto.name }}" class="w-10 h-10 rounded-lg object-cover">
+                                    {% else %}
+                                        <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                            <i data-lucide="package" class="w-5 h-5 text-gray-400"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-white text-sm">{{ producto.name }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ producto.brand.name }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{{ producto.category.name }}</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {% if producto.stock == 0 %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400{% elif producto.stock < 5 %}bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400{% else %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{% endif %}">
+                                    {{ producto.stock }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {% if producto.is_active %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{% else %}bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400{% endif %}">
+                                    {% if producto.is_active %}Activo{% else %}Inactivo{% endif %}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <a href="{% url 'staff:product_edit' producto.pk %}" class="text-cyan-500 hover:text-cyan-600 text-sm font-medium">Editar</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No hay productos recientes</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Usuarios Recientes -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-cyan-500"></i>
+                    Usuarios Recientes
+                </h3>
+                <a href="{% url 'staff:user_list' %}" class="text-sm text-cyan-500 hover:text-cyan-600 font-medium">Ver todos →</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-800/50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Usuario</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Registro</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                        {% for usuario in usuarios_recientes %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    {% if usuario.avatar %}
+                                        <img src="{{ usuario.avatar.url }}" alt="" class="w-8 h-8 rounded-full object-cover">
+                                    {% else %}
+                                        <div class="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center">
+                                            <span class="text-white font-medium text-sm">{{ usuario.first_name|first|upper }}{{ usuario.last_name|first|upper }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-white text-sm">{{ usuario.get_full_name|default:usuario.username }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{{ usuario.email }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{{ usuario.date_joined|date:"d/m/Y H:i" }}</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {% if usuario.is_active %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{% else %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400{% endif %}">
+                                    {% if usuario.is_active %}Activo{% else %}Inactivo{% endif %}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <a href="{% url 'staff:user_detail' usuario.pk %}" class="text-cyan-500 hover:text-cyan-600 text-sm font-medium">Ver</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No hay usuarios recientes</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas Stock Bajo -->
+    {% if alertas_stock %}
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-red-200 dark:border-red-800 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-red-800 dark:text-red-400 flex items-center gap-2">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                Alertas de Stock Bajo ({{ alertas_stock|length }})
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-gray-800/50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Marca</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock Actual</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {% for producto in alertas_stock %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{ producto.name }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{{ producto.category.name }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{{ producto.brand.name }}</td>
+                        <td class="px-4 py-3">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                {{ producto.stock }} unidades
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <a href="{% url 'staff:product_edit' producto.pk %}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                                Reabastecer
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <i data-lucide="zap" class="w-5 h-5 text-cyan-500"></i>
+            Acciones Rápidas
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'staff:product_create' %}" class="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all text-center">
+                <i data-lucide="plus-circle" class="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2"></i>
+                <p class="font-medium text-gray-900 dark:text-white">Nuevo Producto</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Agregar al catálogo</p>
+            </a>
+            <a href="{% url 'staff:category_create' %}" class="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all text-center">
+                <i data-lucide="folder-plus" class="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2"></i>
+                <p class="font-medium text-gray-900 dark:text-white">Nueva Categoría</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Organizar catálogo</p>
+            </a>
+            <a href="{% url 'staff:brand_create' %}" class="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all text-center">
+                <i data-lucide="tag" class="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2"></i>
+                <p class="font-medium text-gray-900 dark:text-white">Nueva Marca</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Agregar fabricante</p>
+            </a>
+            <a href="{% url 'staff:user_list' %}" class="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all text-center">
+                <i data-lucide="user-plus" class="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2"></i>
+                <p class="font-medium text-gray-900 dark:text-white">Gestionar Usuarios</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Ver y editar cuentas</p>
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Category Chart
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        'rgba(6, 182, 212, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(139, 92, 246, 0.8)',
+                        'rgba(236, 72, 153, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(20, 184, 166, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280',
+                            padding: 16,
+                            usePointStyle: true,
+                            font: { size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Stock Chart
+    const stockCtx = document.getElementById('stockChart');
+    if (stockCtx) {
+        new Chart(stockCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sin stock', 'Stock bajo (1-4)', 'Stock medio (5-20)', 'Stock alto (20+)'],
+                datasets: [{
+                    label: 'Productos',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(6, 182, 212, 0.8)'
+                    ],
+                    borderWidth: 0,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
+                        ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280' }
+                    }
+                }
+            }
+        });
+    }
+
+    // Update charts with real data
+    document.addEventListener('DOMContentLoaded', () => {
+        // Category chart data
+        {% if stats.productos_totales > 0 %}
+        fetch('{% url "staff:dashboard_stats" %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.categories) {
+                    const catChart = Chart.getChart('categoryChart');
+                    if (catChart) {
+                        catChart.data.labels = data.categories.map(c => c.name);
+                        catChart.data.datasets[0].data = data.categories.map(c => c.count);
+                        catChart.update();
+                    }
+                }
+                if (data.stock) {
+                    const stockChart = Chart.getChart('stockChart');
+                    if (stockChart) {
+                        stockChart.data.datasets[0].data = [
+                            data.stock.out_of_stock,
+                            data.stock.low_stock,
+                            data.stock.medium_stock,
+                            data.stock.high_stock
+                        ];
+                        stockChart.update();
+                    }
+                }
+            })
+            .catch(console.error);
+        {% endif %}
+    });
+</script>
+{% endblock %}

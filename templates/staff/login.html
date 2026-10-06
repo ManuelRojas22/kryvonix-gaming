@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Staff - VEXOR GAMING</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4" x-data="theme()" x-init="init()">
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="{% url 'catalog:home' %}" class="inline-flex items-center gap-2">
+                <i data-lucide="cpu" class="w-10 h-10 text-cyan-400"></i>
+                <span class="font-orbitron text-2xl font-bold text-gray-900 dark:text-white">VEXOR <span class="text-cyan-400">STAFF</span></span>
+            </a>
+            <p class="mt-4 text-gray-500 dark:text-gray-400">Inicia sesión para acceder al panel de administración</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-8">
+            <form method="post" action="{% url 'staff:login' %}" class="space-y-6">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+
+                {% if form.non_field_errors %}
+                    <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm" role="alert">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Username -->
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Usuario o Email</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Contraseña</label>
+                    <div class="relative">
+                        {{ form.password }}
+                        <button type="button" @click="togglePassword($event)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" aria-label="Mostrar/ocultar contraseña">
+                            <i data-lucide="eye" class="w-5 h-5" x-show="!showPassword"></i>
+                            <i data-lucide="eye-off" class="w-5 h-5 hidden" x-show="showPassword"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="w-full py-3 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+                    <i data-lucide="log-in" class="w-5 h-5 inline-block mr-2"></i>
+                    Acceder al panel
+                </button>
+            </form>
+
+            <!-- Back to site -->
+            <div class="mt-6 text-center">
+                <a href="{% url 'catalog:home' %}" class="text-sm text-gray-500 dark:text-gray-400 hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4 inline-block mr-1"></i>
+                    Volver a la tienda
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer note -->
+        <p class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
+            Solo usuarios con permisos de staff (is_staff=True) pueden acceder.
+        </p>
+    </div>
+
+    <script>
+        function theme() {
+            return {
+                init() {
+                    const stored = localStorage.getItem('theme');
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    if (stored === 'dark' || (!stored && prefersDark)) {
+                        document.documentElement.classList.add('dark');
+                    }
+                },
+                toggleTheme() {
+                    const html = document.documentElement;
+                    if (html.classList.contains('dark')) {
+                        html.classList.remove('dark');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        html.classList.add('dark');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                }
+            }
+        }
+
+        function togglePassword(event) {
+            const btn = event.currentTarget;
+            const input = btn.parentElement.querySelector('input');
+            const showIcon = btn.querySelector('[x-show="showPassword"]');
+            const hideIcon = btn.querySelector('[x-show="!showPassword"]');
+            if (input.type === 'password') {
+                input.type = 'text';
+                showIcon.classList.remove('hidden');
+                hideIcon.classList.add('hidden');
+            } else {
+                input.type = 'password';
+                showIcon.classList.add('hidden');
+                hideIcon.classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
