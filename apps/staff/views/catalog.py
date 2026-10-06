@@ -20,7 +20,7 @@ class CategoryListView(StaffRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Category.objects.annotate(product_count=Count('products')).order_by('order', 'name')
+        queryset = Category.objects.annotate(products_count=Count('products')).order_by('order', 'name')
         search = self.request.GET.get('search')
         is_active = self.request.GET.get('is_active')
 
