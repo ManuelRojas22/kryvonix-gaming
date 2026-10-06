@@ -11,4 +11,5 @@ urlpatterns = [
     path('tienda/', views.shop, name='shop'),
     path('tienda/categoria/<slug:category_slug>/', views.shop, name='shop_category'),
     path('producto/<slug:slug>/', views.product_detail, name='product_detail'),
+    path('armar-pc/', views.pc_builder, name='pc_builder'),
 ]

@@ -71,3 +71,11 @@ def static_v(path):
         mtime = int(os.path.getmtime(full_path))
         return f"{static(path)}?v={mtime}"
     return static(path)
+
+
+@register.filter
+def get_item(dictionary, key):
+    """Return dictionary[key] if exists, else empty list."""
+    if isinstance(dictionary, dict):
+        return dictionary.get(key, [])
+    return []

@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load static catalog_tags %}
+
+{% block title %}Arma tu PC Gaming - VEXOR GAMING{% endblock %}
+{% block meta_description %}Configura tu PC gaming ideal seleccionando componentes compatibles. Ver precio total en tiempo real con precios reales de nuestra tienda.{% endblock %}
+
+{% block extra_head %}
+<style>
+  .component-select { 
+    min-width: 260px; 
+  }
+  .component-card {
+    transition: box-shadow .2s, transform .2s;
+  }
+  .component-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    transform: translateY(-2px);
+  }
+  .price-tag { font-variant-numeric: tabular-nums; }
+  .total-price { font-variant-numeric: tabular-nums; }
+  @media (max-width: 640px) {
+    .component-select { min-width: 100%; }
+  }
+</style>
+{% endblock %}
+
+    {% block content %}
+<section class="py-12 px-4 bg-gray-50 dark:bg-gray-950">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <header class="mb-10 text-center">
+      <h1 class="font-orbitron text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+        Arma tu <span class="text-primary-600 dark:text-primary-400">PC Gaming</span>
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        Selecciona cada componente compatible. El precio total se actualiza en tiempo real con precios reales de nuestra tienda.
+      </p>
+    </header>
+
+    <div class="grid lg:grid-cols-[1fr_320px] gap-8">
+      <!-- Components list -->
+      <div class="space-y-6">
+        {% for cat_slug in category_order %}
+          {% with products=components|get_item:cat_slug %}
+            {% if products %}
+              <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm component-card">
+                <div class="flex items-center justify-between mb-4">
+                  <h2 class="font-orbitron text-lg font-semibold text-gray-900 dark:text-white">
+                    {% if cat_slug == 'procesadores' %}🖥️ Procesador (CPU)
+                    {% elif cat_slug == 'tarjetas-graficas' %}🎮 Tarjeta Gráfica (GPU)
+                    {% elif cat_slug == 'memoria-ram' %}🧠 Memoria RAM
+                    {% elif cat_slug == 'placas-base' %}🔧 Placa Base
+                    {% elif cat_slug == 'fuentes-poder' %}⚡ Fuente de Poder
+                    {% elif cat_slug == 'gabinetes' %}📦 Gabinete
+                    {% elif cat_slug == 'almacenamiento' %}💾 Almacenamiento
+                    {% else %}{{ cat_slug|capfirst }}{% endif %}
+                  </h2>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">{{ products|length }} opciones</span>
+                </div>
+
+                <select class="component-select w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none bg-no-repeat bg-right pr-10"
+                        data-category="{{ cat_slug }}"
+                        id="select-{{ cat_slug }}">
+                  <option value="">— Selecciona {{ cat_slug|capfirst }} —</option>
+                  {% for p in products %}
+                    <option value="{{ p.id }}"
+                            data-price="{{ p.price }}"
+                            data-name="{{ p.name }}"
+                            data-brand="{{ p.brand }}"
+                            data-slug="{{ p.slug }}"
+                            data-image="{{ p.image|default:'' }}">
+                      {{ p.brand }} {{ p.name }} – ${{ p.price|floatformat:2 }}
+                    </option>
+                  {% endfor %}
+                </select>
+
+                <!-- Preview of selected component -->
+                <div id="preview-{{ cat_slug }}" class="mt-4 hidden flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                  <img id="preview-img-{{ cat_slug }}" src="" alt="" class="w-16 h-16 object-cover rounded-lg bg-gray-100 dark:bg-gray-700">
+                  <div class="flex-1 min-w-0">
+                    <p id="preview-name-{{ cat_slug }}" class="font-medium text-gray-900 dark:text-white truncate"></p>
+                    <p id="preview-brand-{{ cat_slug }}" class="text-sm text-gray-500 dark:text-gray-400"></p>
+                  </div>
+                  <p id="preview-price-{{ cat_slug }}" class="font-orbitron text-lg font-bold text-primary-600 dark:text-primary-400 price-tag"></p>
+                </div>
+              </div>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+
+      <!-- Summary sidebar -->
+      <aside class="lg:sticky lg:top-24">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm component-card">
+          <h2 class="font-orbitron text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Resumen del Pedido
+          </h2>
+
+          <ul class="space-y-3 mb-6" id="summary-list">
+            <li class="text-gray-500 dark:text-gray-400 text-center py-8" id="empty-summary">
+              No has seleccionado componentes aún.
+            </li>
+          </ul>
+
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mb-4">
+            <div class="flex justify-between text-lg font-semibold">
+              <span class="text-gray-900 dark:text-white">Total estimado</span>
+              <span id="total-price" class="font-orbitron text-primary-600 dark:text-primary-400 total-price">$0.00</span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Los precios son referenciales y pueden variar según disponibilidad.</p>
+          </div>
+
+          <a href="{% url 'catalog:shop' %}" class="btn-primary w-full py-3 text-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            Ver componentes en la tienda
+          </a>
+
+          <a href="#" id="btn-save-config" class="btn-secondary w-full py-3 text-center mt-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Guardar configuración
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const selects = document.querySelectorAll('select[data-category]');
+  const summaryList = document.getElementById('summary-list');
+  const emptySummary = document.getElementById('empty-summary');
+  const totalEl = document.getElementById('total-price');
+
+  // Store selected component data per category
+  const selected = {};
+
+  function formatPrice(val) {
+    return '$' + val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  function updateTotal() {
+    let total = 0;
+    Object.values(selected).forEach(item => {
+      total += item.price;
+    });
+    totalEl.textContent = formatPrice(total);
+  }
+
+  function renderSummary() {
+    if (Object.keys(selected).length === 0) {
+      summaryList.innerHTML = '';
+      emptySummary.style.display = 'block';
+      return;
+    }
+    emptySummary.style.display = 'none';
+    summaryList.innerHTML = '';
+    Object.entries(selected).forEach(([cat, item]) => {
+      const li = document.createElement('li');
+      li.className = 'flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800';
+      li.innerHTML = `
+        <div class="flex items-center gap-3 min-w-0">
+          ${item.image ? `<img src="${item.image}" alt="" class="w-10 h-10 object-cover rounded-lg bg-gray-100 dark:bg-gray-800">` : ''}
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900 dark:text-white truncate max-w-[180px]">${item.name}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">${item.brand}</p>
+          </div>
+        </div>
+        <span class="font-orbitron text-primary-600 dark:text-primary-400 price-tag">${formatPrice(item.price)}</span>
+      `;
+      summaryList.appendChild(li);
+    });
+  }
+
+  selects.forEach(sel => {
+    sel.addEventListener('change', () => {
+      const cat = sel.dataset.category;
+      const opt = sel.options[sel.selectedIndex];
+      const preview = document.getElementById(`preview-${cat}`);
+      const previewImg = document.getElementById(`preview-img-${cat}`);
+      const previewName = document.getElementById(`preview-name-${cat}`);
+      const previewBrand = document.getElementById(`preview-brand-${cat}`);
+      const previewPrice = document.getElementById(`preview-price-${cat}`);
+
+      if (opt.value) {
+        const price = parseFloat(opt.dataset.price);
+        const name = opt.dataset.name;
+        const brand = opt.dataset.brand;
+        const image = opt.dataset.image;
+
+        selected[cat] = { id: opt.value, name, brand, price, image: image || null };
+
+        if (preview) {
+          preview.classList.remove('hidden');
+          if (previewImg) previewImg.src = image || '';
+          if (previewName) previewName.textContent = name;
+          if (previewBrand) previewBrand.textContent = brand;
+          if (previewPrice) previewPrice.textContent = '$' + price.toFixed(2);
+        }
+      } else {
+        delete selected[cat];
+        if (preview) preview.classList.add('hidden');
+      }
+
+      updateTotal();
+      renderSummary();
+    });
+  });
+
+  // Save configuration (store in localStorage)
+  document.getElementById('btn-save-config').addEventListener('click', e => {
+    e.preventDefault();
+    const config = {
+      selected: Object.fromEntries(
+        Object.entries(selected).map(([cat, item]) => [cat, item.id])
+      ),
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem('pc_builder_config', JSON.stringify(config));
+    alert('Configuración guardada en el navegador.');
+  });
+
+  // Load saved config on load
+  const saved = localStorage.getItem('pc_builder_config');
+  if (saved) {
+    try {
+      const cfg = JSON.parse(saved);
+      if (cfg.selected) {
+        Object.entries(cfg.selected).forEach(([cat, prodId]) => {
+          const sel = document.getElementById(`select-${cat}`);
+          if (sel) {
+            sel.value = prodId;
+            sel.dispatchEvent(new Event('change'));
+          }
+        });
+      }
+    } catch(_) {}
+  }
+});
+</script>
+{% endblock %}

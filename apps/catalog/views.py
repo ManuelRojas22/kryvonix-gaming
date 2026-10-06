@@ -165,3 +165,43 @@ def product_detail(request, slug):
         'related_products': related_products,
     }
     return render(request, 'catalog/product_detail.html', context)
+
+
+def pc_builder(request):
+    """PC Builder page: select compatible components and see approximate total price."""
+    # Define the categories we need for a PC build
+    category_slugs = [
+        'procesadores',          # CPU
+        'tarjetas-graficas',     # GPU
+        'memoria-ram',           # RAM
+        'placas-base',           # Motherboard
+        'fuentes-poder',         # PSU
+        'gabinetes',             # Case
+        'almacenamiento',        # Storage (SSD/HDD)
+    ]
+
+    categories = Category.objects.filter(slug__in=category_slugs, is_active=True).prefetch_related(
+        'products'
+    )
+
+    # Build a dict: category_slug -> list of active products (with price)
+    components = {}
+    for cat in categories:
+        products = cat.products.filter(is_active=True).select_related('brand').order_by('price')
+        components[cat.slug] = [
+            {
+                'id': p.id,
+                'name': p.name,
+                'brand': p.brand.name,
+                'price': float(p.current_price),
+                'slug': p.slug,
+                'image': p.primary_image.image.url if p.primary_image else None,
+            }
+            for p in products
+        ]
+
+    context = {
+        'components': components,
+        'category_order': category_slugs,
+    }
+    return render(request, 'catalog/pc_builder.html', context)
