@@ -79,7 +79,7 @@ class BrandListView(StaffRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Brand.objects.annotate(product_count=Count('products')).order_by('name')
+        queryset = Brand.objects.annotate(products_count=Count('products')).order_by('name')
         search = self.request.GET.get('search')
         is_active = self.request.GET.get('is_active')
 
