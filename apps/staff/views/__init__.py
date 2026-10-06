@@ -3,7 +3,9 @@ from apps.staff.views.catalog import (
     CategoryListView, CategoryCreateView, CategoryUpdateView, CategoryDeleteView,
     BrandListView, BrandCreateView, BrandUpdateView, BrandDeleteView,
     ProductListView, ProductCreateView, ProductUpdateView, ProductDetailView, ProductDeleteView,
-    generate_slug, toggle_product_status, toggle_product_featured, bulk_action_products
+    OrderListView, OrderDetailView,
+    generate_slug, toggle_product_status, toggle_product_featured, bulk_action_products,
+    order_update_status
 )
 from apps.staff.views.users import UserListView, UserDetailView, toggle_user_active, toggle_user_staff
 
@@ -12,6 +14,8 @@ __all__ = [
     'CategoryListView', 'CategoryCreateView', 'CategoryUpdateView', 'CategoryDeleteView',
     'BrandListView', 'BrandCreateView', 'BrandUpdateView', 'BrandDeleteView',
     'ProductListView', 'ProductCreateView', 'ProductUpdateView', 'ProductDetailView', 'ProductDeleteView',
+    'OrderListView', 'OrderDetailView',
     'generate_slug', 'toggle_product_status', 'toggle_product_featured', 'bulk_action_products',
+    'order_update_status',
     'UserListView', 'UserDetailView', 'toggle_user_active', 'toggle_user_staff'
 ]

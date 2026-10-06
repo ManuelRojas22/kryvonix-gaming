@@ -9,6 +9,7 @@ from django.utils.text import slugify
 from apps.staff.mixins import StaffRequiredMixin
 from apps.staff.forms import CategoryForm, BrandForm, ProductForm, ProductImageFormSet, ProductSpecFormSet
 from apps.catalog.models import Category, Brand, Product
+from apps.cart.models import Order, OrderItem
 
 
 # ==================== CATEGORY VIEWS ====================
@@ -375,3 +376,92 @@ def bulk_action_products(request):
             messages.success(request, f'{count} productos eliminados.')
 
     return redirect('staff:product_list')
+
+
+# ==================== ORDER VIEWS ====================
+
+class OrderListView(StaffRequiredMixin, ListView):
+    model = Order
+    template_name = 'staff/orders/order_list.html'
+    context_object_name = 'orders'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = Order.objects.select_related('user').prefetch_related('items__product').order_by('-created_at')
+        search = self.request.GET.get('search')
+        status = self.request.GET.get('status')
+        date_range = self.request.GET.get('date_range')
+
+        if search:
+            queryset = queryset.filter(
+                Q(order_number__icontains=search) |
+                Q(client_name__icontains=search) |
+                Q(client_email__icontains=search) |
+                Q(id__icontains=search)
+            )
+        if status:
+            queryset = queryset.filter(status=status)
+        if date_range:
+            from django.utils import timezone
+            from datetime import timedelta
+            now = timezone.now()
+            if date_range == 'today':
+                queryset = queryset.filter(created_at__date=now.date())
+            elif date_range == 'week':
+                queryset = queryset.filter(created_at__gte=now - timedelta(days=7))
+            elif date_range == 'month':
+                queryset = queryset.filter(created_at__gte=now - timedelta(days=30))
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        base_qs = Order.objects.all()
+        context['orders_total'] = base_qs.count()
+        context['orders_pendiente'] = base_qs.filter(status='pendiente').count()
+        context['orders_procesando'] = base_qs.filter(status='procesando').count()
+        context['orders_enviado'] = base_qs.filter(status='enviado').count()
+        context['orders_completado'] = base_qs.filter(status='completado').count()
+        context['orders_cancelado'] = base_qs.filter(status='cancelado').count()
+        context['total_revenue'] = base_qs.filter(payment_status='pagado').aggregate(
+            total=models.Sum('total')
+        )['total'] or 0
+        context['search'] = self.request.GET.get('search', '')
+        context['status_filter'] = self.request.GET.get('status', '')
+        context['date_filter'] = self.request.GET.get('date_range', '')
+        return context
+
+
+class OrderDetailView(StaffRequiredMixin, DetailView):
+    model = Order
+    template_name = 'staff/orders/order_detail.html'
+    context_object_name = 'order'
+
+    def get_queryset(self):
+        return Order.objects.select_related('user').prefetch_related('items__product__brand', 'items__product__images')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_choices'] = Order.STATUS_CHOICES
+        return context
+
+
+def order_update_status(request, pk):
+    """AJAX endpoint para actualizar estado de pedido."""
+    if request.method == 'POST':
+        order = get_object_or_404(Order, pk=pk)
+        new_status = request.POST.get('status')
+        if new_status in dict(Order.STATUS_CHOICES):
+            old_status = order.status
+            order.status = new_status
+            if new_status == 'enviado' and not order.shipped_at:
+                from django.utils import timezone
+                order.shipped_at = timezone.now()
+            elif new_status == 'completado' and not order.delivered_at:
+                from django.utils import timezone
+                order.delivered_at = timezone.now()
+            order.save(update_fields=['status', 'shipped_at', 'delivered_at', 'updated_at'])
+            messages.success(request, f'Estado actualizado de "{old_status}" a "{new_status}".')
+        else:
+            messages.error(request, 'Estado inválido.')
+    return redirect('staff:order_detail', pk=pk)

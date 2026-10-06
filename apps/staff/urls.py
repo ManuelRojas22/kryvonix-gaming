@@ -1,13 +1,13 @@
 from django.urls import path
-from django.views.generic import TemplateView
 from apps.staff.views import (
     StaffLoginView, DashboardView, DashboardStatsView,
     CategoryListView, CategoryCreateView, CategoryUpdateView, CategoryDeleteView,
     BrandListView, BrandCreateView, BrandUpdateView, BrandDeleteView,
     ProductListView, ProductCreateView, ProductUpdateView, ProductDetailView, ProductDeleteView,
     UserListView, UserDetailView,
+    OrderListView, OrderDetailView,
     generate_slug, toggle_product_status, toggle_product_featured, bulk_action_products,
-    toggle_user_active, toggle_user_staff
+    toggle_user_active, toggle_user_staff, order_update_status
 )
 
 app_name = 'staff'
@@ -37,11 +37,12 @@ urlpatterns = [
     # Users
     path('usuarios/', UserListView.as_view(), name='user_list'),
     path('usuarios/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
-    # Orders (placeholder templates)
-    path('pedidos/', TemplateView.as_view(template_name='staff/orders/order_list.html'), name='order_list'),
-    path('pedidos/<int:pk>/', TemplateView.as_view(template_name='staff/orders/order_detail.html'), name='order_detail'),
+    # Orders
+    path('pedidos/', OrderListView.as_view(), name='order_list'),
+    path('pedidos/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
+    path('pedidos/<int:pk>/actualizar-estado/', order_update_status, name='order_update_status'),
     # Reports
-    path('reportes/', TemplateView.as_view(template_name='staff/reports/dashboard.html'), name='reports_dashboard'),
+    path('reportes/', DashboardView.as_view(template_name='staff/reports/dashboard.html'), name='reports_dashboard'),
     # AJAX endpoints
     path('ajax/generate-slug/', generate_slug, name='generate_slug'),
     path('ajax/product/<int:pk>/toggle-status/', toggle_product_status, name='toggle_product_status'),
