@@ -1,4 +1,4 @@
-{% load static %}
+{% load static catalog_tags %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS (compiled) -->
-    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="stylesheet" href="{% static_v 'css/output.css' %}">
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

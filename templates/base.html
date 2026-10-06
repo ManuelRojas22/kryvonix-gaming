@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load static %}
+{% load static catalog_tags %}
 <html lang="es" x-data="theme()" x-init="initTheme()" :class="{ 'dark': isDark }">
 <head>
     <meta charset="UTF-8">
@@ -16,10 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="{% static 'css/output.css' %}">
-
-    <!-- Theme (must load before Alpine so the `theme` component registers) -->
-    <script src="{% static 'js/theme.js' %}"></script>
+    <link rel="stylesheet" href="{% static_v 'css/output.css' %}">
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
@@ -48,6 +45,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <!-- Custom JS -->
+    <script src="{% static 'js/theme.js' %}"></script>
     <script src="{% static 'js/animations.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
 
