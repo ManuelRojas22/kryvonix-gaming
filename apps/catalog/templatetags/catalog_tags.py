@@ -39,3 +39,12 @@ def query_string(request, **kwargs):
         else:
             query[key] = value
     return query.urlencode()
+
+
+@register.filter
+def sub(value, arg):
+    """Subtract arg from value."""
+    try:
+        return value - arg
+    except Exception:
+        return ''
