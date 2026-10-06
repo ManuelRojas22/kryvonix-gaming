@@ -4,7 +4,9 @@ from apps.staff.views import (
     CategoryListView, CategoryCreateView, CategoryUpdateView, CategoryDeleteView,
     BrandListView, BrandCreateView, BrandUpdateView, BrandDeleteView,
     ProductListView, ProductCreateView, ProductUpdateView, ProductDetailView, ProductDeleteView,
-    generate_slug, toggle_product_status, toggle_product_featured, bulk_action_products
+    UserListView, UserDetailView,
+    generate_slug, toggle_product_status, toggle_product_featured, bulk_action_products,
+    toggle_user_active, toggle_user_staff
 )
 
 app_name = 'staff'
@@ -31,9 +33,14 @@ urlpatterns = [
     path('productos/<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
     path('productos/<int:pk>/editar/', ProductUpdateView.as_view(), name='product_edit'),
     path('productos/<int:pk>/eliminar/', ProductDeleteView.as_view(), name='product_delete'),
+    # Users
+    path('usuarios/', UserListView.as_view(), name='user_list'),
+    path('usuarios/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
     # AJAX endpoints
     path('ajax/generate-slug/', generate_slug, name='generate_slug'),
     path('ajax/product/<int:pk>/toggle-status/', toggle_product_status, name='toggle_product_status'),
     path('ajax/product/<int:pk>/toggle-featured/', toggle_product_featured, name='toggle_product_featured'),
     path('ajax/products/bulk-action/', bulk_action_products, name='bulk_action_products'),
+    path('ajax/user/<int:pk>/toggle-active/', toggle_user_active, name='toggle_user_active'),
+    path('ajax/user/<int:pk>/toggle-staff/', toggle_user_staff, name='toggle_user_staff'),
 ]

@@ -1,0 +1,242 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}{{ user_obj.get_full_name|default:user_obj.username }} - Panel Staff{% endblock %}
+{% block page_title %}{{ user_obj.get_full_name|default:user_obj.username }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-4">
+            {% if user_obj.avatar %}
+                <img src="{{ user_obj.avatar.url }}" alt="" class="w-16 h-16 rounded-full object-cover">
+            {% else %}
+                <div class="w-16 h-16 rounded-full bg-cyan-500 flex items-center justify-center">
+                    <span class="text-white font-bold text-xl">{{ user_obj.first_name|first|upper }}{{ user_obj.last_name|first|upper }}</span>
+                </div>
+            {% endif %}
+            <div>
+                <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">
+                    {{ user_obj.get_full_name|default:user_obj.username }}
+                    {% if user_obj.is_superuser %}
+                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Superuser</span>
+                    {% endif %}
+                    {% if user_obj.is_staff %}
+                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">Staff</span>
+                    {% endif %}
+                </h1>
+                <p class="text-gray-500 dark:text-gray-400">@{{ user_obj.username }} · {{ user_obj.email }}</p>
+            </div>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            {% if user_obj != request.user %}
+                <button onclick="toggleActive({{ user_obj.pk }}, {{ user_obj.is_active|yesno:'true,false' }})" class="px-4 py-2 {% if user_obj.is_active %}bg-red-500 hover:bg-red-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white font-medium rounded-lg transition-colors">
+                    <i data-lucide="{% if user_obj.is_active %}user-x{% else %}user-check{% endif %}" class="w-4 h-4 inline-block mr-2"></i>
+                    {% if user_obj.is_active %}Desactivar{% else %}Activar{% endif %}
+                </button>
+                {% if not user_obj.is_superuser %}
+                    <button onclick="toggleStaff({{ user_obj.pk }}, {{ user_obj.is_staff|yesno:'true,false' }})" class="px-4 py-2 {% if user_obj.is_staff %}bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300{% else %}bg-purple-500 hover:bg-purple-600 text-white{% endif %} font-medium rounded-lg transition-colors">
+                        <i data-lucide="{% if user_obj.is_staff %}user-minus{% else %}user-plus{% endif %}" class="w-4 h-4 inline-block mr-2"></i>
+                        {% if user_obj.is_staff %}Quitar staff{% else %}Dar permisos staff{% endif %}
+                    </button>
+                {% endif %}
+            {% endif %}
+            <a href="{% url 'staff:user_list' %}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4 inline-block mr-2"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Registrado</p>
+            <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ user_obj.date_joined|date:"d/m/Y H:i" }}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Último acceso</p>
+            <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ user_obj.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Direcciones</p>
+            <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ addresses.count }}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Wishlist</p>
+            <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ wishlist_items|length }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Addresses -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-cyan-500"></i>
+                    Direcciones ({{ addresses.count }})
+                </h3>
+            </div>
+            <div class="p-6">
+                {% if addresses %}
+                    <div class="space-y-4">
+                        {% for addr in addresses %}
+                        <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">{{ addr.full_name }}</span>
+                                        {% if addr.is_default %}
+                                            <span class="px-2 py-0.5 text-xs font-medium bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400 rounded">Predeterminada</span>
+                                        {% endif %}
+                                        <span class="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 rounded capitalize">{{ addr.get_type_display }}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ addr.address_line1 }}</p>
+                                    {% if addr.address_line2 %}<p class="text-sm text-gray-500 dark:text-gray-500">{{ addr.address_line2 }}</p>{% endif %}
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ addr.city }}, {{ addr.state }} {{ addr.postal_code }}, {{ addr.country }}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-1"><i data-lucide="phone" class="w-3 h-3 inline-block mr-1"></i> {{ addr.phone }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i data-lucide="map-pin" class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3"></i>
+                        <p class="text-gray-500 dark:text-gray-400">No tiene direcciones guardadas</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Current Cart -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 text-cyan-500"></i>
+                    Carrito Actual
+                </h3>
+            </div>
+            <div class="p-6">
+                {% if cart_items %}
+                    <div class="space-y-3">
+                        {% for item in cart_items %}
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                            {% if item.product.primary_image %}
+                                <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 rounded-lg object-cover">
+                            {% else %}
+                                <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                    <i data-lucide="package" class="w-5 h-5 text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium text-gray-900 dark:text-white truncate">{{ item.product.name }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${{ item.unit_price|floatformat:2 }} c/u</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium text-gray-900 dark:text-white">{{ item.quantity }} uds</p>
+                                <p class="text-sm font-semibold text-cyan-500">${{ item.total_price|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-right">
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">Total: ${{ cart.total_price|floatformat:2 }}</p>
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i data-lucide="shopping-cart" class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3"></i>
+                        <p class="text-gray-500 dark:text-gray-400">Carrito vacío</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Wishlist -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden lg:col-span-2">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="heart" class="w-5 h-5 text-red-500"></i>
+                    Lista de Deseos ({{ wishlist_items|length }})
+                </h3>
+            </div>
+            <div class="p-6">
+                {% if wishlist_items %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for item in wishlist_items %}
+                        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                            {% if item.product.primary_image %}
+                                <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="w-full h-32 object-cover rounded-lg mb-2">
+                            {% else %}
+                                <div class="w-full h-32 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-2">
+                                    <i data-lucide="package" class="w-8 h-8 text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            <p class="font-medium text-gray-900 dark:text-white text-sm truncate">{{ item.product.name }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ item.product.brand.name }}</p>
+                            <div class="mt-2 flex items-center justify-between">
+                                <span class="font-semibold text-gray-900 dark:text-white">${{ item.current_price|floatformat:2 }}</span>
+                                {% if item.price_dropped %}
+                                    <span class="text-xs text-green-600 dark:text-green-400 font-medium">-{{ item.discount_percent }}%</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i data-lucide="heart" class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3"></i>
+                        <p class="text-gray-500 dark:text-gray-400">Lista de deseos vacía</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+
+    function toggleActive(pk, currentStatus) {
+        fetch(`{% url 'staff:toggle_user_active' 0 %}`.replace('0', pk), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Error al cambiar estado');
+            }
+        })
+        .catch(console.error);
+    }
+
+    function toggleStaff(pk, currentStatus) {
+        fetch(`{% url 'staff:toggle_user_staff' 0 %}`.replace('0', pk), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Error al cambiar permisos');
+            }
+        })
+        .catch(console.error);
+    }
+</script>
+{% endblock %}
