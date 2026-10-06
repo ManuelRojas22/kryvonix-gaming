@@ -465,3 +465,167 @@ def order_update_status(request, pk):
         else:
             messages.error(request, 'Estado inválido.')
     return redirect('staff:order_detail', pk=pk)
+
+
+def reports_data(request):
+    """AJAX endpoint para datos de reportes."""
+    from django.db.models import Sum, Count, Avg
+    from django.utils import timezone
+    from datetime import timedelta
+    import json
+    
+    days = int(request.GET.get('days', 30))
+    now = timezone.now()
+    start_date = now - timedelta(days=days)
+    prev_start = start_date - timedelta(days=days)
+    
+    # Current period orders
+    current_orders = Order.objects.filter(created_at__gte=start_date)
+    prev_orders = Order.objects.filter(created_at__gte=prev_start, created_at__lt=start_date)
+    
+    # Revenue
+    current_revenue = current_orders.filter(payment_status='pagado').aggregate(total=Sum('total'))['total'] or 0
+    prev_revenue = prev_orders.filter(payment_status='pagado').aggregate(total=Sum('total'))['total'] or 0
+    revenue_trend = ((current_revenue - prev_revenue) / prev_revenue * 100) if prev_revenue > 0 else 0
+    
+    # Orders count
+    current_orders_count = current_orders.count()
+    prev_orders_count = prev_orders.count()
+    orders_trend = ((current_orders_count - prev_orders_count) / prev_orders_count * 100) if prev_orders_count > 0 else 0
+    
+    # AOV
+    current_aov = current_revenue / current_orders_count if current_orders_count > 0 else 0
+    prev_aov = prev_revenue / prev_orders_count if prev_orders_count > 0 else 0
+    aov_trend = ((current_aov - prev_aov) / prev_aov * 100) if prev_aov > 0 else 0
+    
+    # Conversion rate (simplified - orders / visits would need analytics)
+    # Using a placeholder based on orders vs carts
+    from apps.cart.models import Cart
+    current_carts = Cart.objects.filter(created_at__gte=start_date).count()
+    prev_carts = Cart.objects.filter(created_at__gte=prev_start, created_at__lt=start_date).count()
+    current_conversion = (current_orders_count / current_carts * 100) if current_carts > 0 else 0
+    prev_conversion = (prev_orders_count / prev_carts * 100) if prev_carts > 0 else 0
+    conversion_trend = ((current_conversion - prev_conversion) / prev_conversion * 100) if prev_conversion > 0 else 0
+    
+    # Sales chart data (daily revenue)
+    sales_by_day = current_orders.filter(payment_status='pagado').extra(
+        select={'day': 'date(created_at)'}
+    ).values('day').annotate(total=Sum('total')).order_by('day')
+    
+    sales_labels = []
+    sales_values = []
+    for i in range(days):
+        day = (start_date + timedelta(days=i)).date()
+        sales_labels.append(day.strftime('%d/%m'))
+        day_total = next((item['total'] for item in sales_by_day if item['day'] == day), 0)
+        sales_values.append(float(day_total or 0))
+    
+    # Category chart
+    category_sales = OrderItem.objects.filter(order__in=current_orders, order__payment_status='pagado').select_related('product__category').values('product__category__name').annotate(
+        revenue=Sum('subtotal'),
+        units=Sum('quantity')
+    ).order_by('-revenue')[:8]
+    
+    cat_labels = [c['product__category__name'] or 'Sin categoría' for c in category_sales]
+    cat_values = [float(c['revenue'] or 0) for c in category_sales]
+    
+    # Top products
+    top_products = OrderItem.objects.filter(order__in=current_orders, order__payment_status='pagado').select_related('product__category', 'product__brand', 'product__images').values(
+        'product__id', 'product__name', 'product__brand__name', 'product__category__name'
+    ).annotate(
+        units_sold=Sum('quantity'),
+        revenue=Sum('subtotal')
+    ).order_by('-units_sold')[:10]
+    
+    top_products_data = []
+    for tp in top_products:
+        # Get primary image
+        from apps.catalog.models import ProductImage
+        img = ProductImage.objects.filter(product_id=tp['product__id']).first()
+        top_products_data.append({
+            'name': tp['product__name'],
+            'brand': tp['product__brand__name'] or '',
+            'category': tp['product__category__name'] or 'Sin categoría',
+            'units_sold': tp['units_sold'] or 0,
+            'revenue': float(tp['revenue'] or 0),
+            'aov': float(tp['revenue'] / tp['units_sold']) if tp['units_sold'] else 0,
+            'image': img.image.url if img else None
+        })
+    
+    # Recent orders
+    recent_orders_qs = Order.objects.select_related('user').order_by('-created_at')[:10]
+    recent_orders = []
+    for o in recent_orders_qs:
+        recent_orders.append({
+            'id': o.id,
+            'order_number': o.order_number,
+            'client_name': o.client_name,
+            'client_email': o.client_email,
+            'total': float(o.total),
+            'status': o.status,
+            'created_at': o.created_at.isoformat()
+        })
+    
+    # Low stock products
+    from apps.catalog.models import Product
+    low_stock = Product.objects.filter(is_active=True, stock__lte=5, stock__gt=0).select_related('category', 'brand', 'images')[:10]
+    low_stock_data = []
+    for p in low_stock:
+        img = p.images.first()
+        low_stock_data.append({
+            'name': p.name,
+            'brand': p.brand.name,
+            'category': p.category.name,
+            'stock': p.stock,
+            'image': img.image.url if img else None
+        })
+    
+    # Top categories table
+    top_categories = OrderItem.objects.filter(order__in=current_orders, order__payment_status='pagado').select_related('product__category').values(
+        'product__category__name'
+    ).annotate(
+        units_sold=Sum('quantity'),
+        revenue=Sum('subtotal')
+    ).order_by('-revenue')[:10]
+    
+    top_categories_data = []
+    for tc in top_categories:
+        top_categories_data.append({
+            'name': tc['product__category__name'] or 'Sin categoría',
+            'units_sold': tc['units_sold'] or 0,
+            'revenue': float(tc['revenue'] or 0)
+        })
+    
+    # Status chart
+    status_counts = current_orders.values('status').annotate(count=Count('id')).order_by('-count')
+    status_labels = [s['status'] for s in status_counts]
+    status_values = [s['count'] for s in status_counts]
+    
+    # Top products chart
+    top_products_chart = OrderItem.objects.filter(order__in=current_orders, order__payment_status='pagado').select_related('product').values(
+        'product__name'
+    ).annotate(
+        units=Sum('quantity')
+    ).order_by('-units')[:10]
+    
+    return JsonResponse({
+        'revenue': float(current_revenue),
+        'revenue_trend': round(revenue_trend, 1),
+        'orders_count': current_orders_count,
+        'orders_trend': round(orders_trend, 1),
+        'aov': round(current_aov, 2),
+        'aov_trend': round(aov_trend, 1),
+        'conversion_rate': round(current_conversion, 2),
+        'conversion_trend': round(conversion_trend, 1),
+        'sales_chart': {'labels': sales_labels, 'values': sales_values},
+        'category_chart': {'labels': cat_labels, 'values': cat_values},
+        'top_products_chart': {
+            'labels': [p['product__name'] for p in top_products_chart],
+            'values': [p['units'] for p in top_products_chart]
+        },
+        'top_products': top_products_data,
+        'recent_orders': recent_orders,
+        'low_stock': low_stock_data,
+        'top_categories': top_categories_data,
+        'status_chart': {'labels': status_labels, 'values': status_values},
+    })

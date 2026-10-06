@@ -7,7 +7,7 @@ from apps.staff.views import (
     UserListView, UserDetailView,
     OrderListView, OrderDetailView,
     generate_slug, toggle_product_status, toggle_product_featured, bulk_action_products,
-    toggle_user_active, toggle_user_staff, order_update_status
+    toggle_user_active, toggle_user_staff, order_update_status, reports_data
 )
 
 app_name = 'staff'
@@ -43,6 +43,7 @@ urlpatterns = [
     path('pedidos/<int:pk>/actualizar-estado/', order_update_status, name='order_update_status'),
     # Reports
     path('reportes/', DashboardView.as_view(template_name='staff/reports/dashboard.html'), name='reports_dashboard'),
+    path('reportes/data/', reports_data, name='reports_data'),
     # AJAX endpoints
     path('ajax/generate-slug/', generate_slug, name='generate_slug'),
     path('ajax/product/<int:pk>/toggle-status/', toggle_product_status, name='toggle_product_status'),

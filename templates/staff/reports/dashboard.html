@@ -3,212 +3,712 @@
 {% block title %}Reportes - Panel Staff{% endblock %}
 {% block page_title %}Reportes{% endblock %}
 
+{% block extra_head %}
+<style>
+    .stat-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+    }
+    .dark .stat-card {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        border: 1px solid #374151;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+    .dark .stat-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .chart-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border: 1px solid #e5e7eb;
+    }
+    .dark .chart-card {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        border: 1px solid #374151;
+    }
+    .table-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border: 1px solid #e5e7eb;
+    }
+    .dark .table-card {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        border: 1px solid #374151;
+    }
+    .date-btn {
+        @apply px-4 py-2 text-sm font-medium rounded-lg border transition-all;
+    }
+    .date-btn.active {
+        @apply bg-cyan-500 text-white border-cyan-500;
+    }
+    .date-btn:not(.active) {
+        @apply bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700;
+    }
+    .product-row {
+        transition: background-color 0.15s;
+    }
+    .product-row:hover {
+        @apply bg-gray-50 dark:bg-gray-800/50;
+    }
+    .rank-badge {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.875rem;
+    }
+    .rank-1 { @apply bg-gradient-to-br from-yellow-400 to-yellow-500 text-white; }
+    .rank-2 { @apply bg-gradient-to-br from-gray-300 to-gray-400 text-white; }
+    .rank-3 { @apply bg-gradient-to-br from-orange-400 to-orange-500 text-white; }
+    .rank-other { @apply bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400; }
+    .trend-up { @apply text-green-600 dark:text-green-400; }
+    .trend-down { @apply text-red-600 dark:text-red-400; }
+    .trend-neutral { @apply text-gray-500 dark:text-gray-400; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="space-y-6">
-  <div>
-    <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">Reportes</h1>
-    <p class="text-gray-500 dark:text-gray-400 mt-1">Métricas y análisis de la tienda</p>
-  </div>
-
-  <!-- KPI Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="card-base p-6 bg-white dark:bg-gray-900">
-      <div class="flex items-start justify-between">
+    <!-- Header with date range -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ventas totales</p>
-          <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">$12,450.00</p>
+            <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">Reportes</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Métricas y análisis de la tienda</p>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-          <i data-lucide="trending-up" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1" role="group" aria-label="Rango de fechas">
+                <button type="button" class="date-btn active" data-range="30" onclick="setDateRange(this, '30')">30 días</button>
+                <button type="button" class="date-btn" data-range="7" onclick="setDateRange(this, '7')">7 días</button>
+                <button type="button" class="date-btn" data-range="90" onclick="setDateRange(this, '90')">90 días</button>
+                <button type="button" class="date-btn" data-range="365" onclick="setDateRange(this, '365')">1 año</button>
+            </div>
+            <button type="button" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors flex items-center gap-2" onclick="exportReport()">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Exportar
+            </button>
         </div>
-      </div>
-      <p class="mt-4 text-sm text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
-        <i data-lucide="arrow-up" class="w-4 h-4"></i> +12% vs mes anterior
-      </p>
     </div>
 
-    <div class="card-base p-6 bg-white dark:bg-gray-900">
-      <div class="flex items-start justify-between">
-        <div>
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pedidos</p>
-          <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">324</p>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-          <i data-lucide="shopping-cart" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
-        </div>
-      </div>
-      <p class="mt-4 text-sm text-blue-600 dark:text-blue-400 font-medium flex items-center gap-1">
-        <i data-lucide="arrow-up" class="w-4 h-4"></i> +8% vs mes anterior
-      </p>
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="kpiCards">
+        <!-- Ventas Totales -->
+        <article class="stat-card rounded-2xl p-6 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ventas Totales</p>
+                    <p id="kpiRevenue" class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">$0.00</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2">
+                <i id="kpiRevenueTrendIcon" data-lucide="arrow-up" class="w-4 h-4"></i>
+                <span id="kpiRevenueTrend" class="text-sm font-medium">Cargando...</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">vs período anterior</span>
+            </div>
+        </article>
+
+        <!-- Pedidos -->
+        <article class="stat-card rounded-2xl p-6 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pedidos</p>
+                    <p id="kpiOrders" class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <i data-lucide="shopping-cart" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2">
+                <i id="kpiOrdersTrendIcon" data-lucide="arrow-up" class="w-4 h-4"></i>
+                <span id="kpiOrdersTrend" class="text-sm font-medium">Cargando...</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">vs período anterior</span>
+            </div>
+        </article>
+
+        <!-- Ticket Promedio -->
+        <article class="stat-card rounded-2xl p-6 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ticket Promedio</p>
+                    <p id="kpiAOV" class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">$0.00</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <i data-lucide="calculator" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2">
+                <i id="kpiAOVTrendIcon" data-lucide="arrow-up" class="w-4 h-4"></i>
+                <span id="kpiAOVTrend" class="text-sm font-medium">Cargando...</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">vs período anterior</span>
+            </div>
+        </article>
+
+        <!-- Conversión -->
+        <article class="stat-card rounded-2xl p-6 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tasa Conversión</p>
+                    <p id="kpiConversion" class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">0%</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                    <i data-lucide="target" class="w-6 h-6 text-orange-600 dark:text-orange-400"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2">
+                <i id="kpiConversionTrendIcon" data-lucide="arrow-up" class="w-4 h-4"></i>
+                <span id="kpiConversionTrend" class="text-sm font-medium">Cargando...</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">vs período anterior</span>
+            </div>
+        </article>
     </div>
 
-    <div class="card-base p-6 bg-white dark:bg-gray-900">
-      <div class="flex items-start justify-between">
-        <div>
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ticket promedio</p>
-          <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">$38.42</p>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-          <i data-lucide="dollar-sign" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
-        </div>
-      </div>
-      <p class="mt-4 text-sm text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1">
-        <i data-lucide="arrow-up" class="w-4 h-4"></i> +3% vs mes anterior
-      </p>
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Sales Chart -->
+        <article class="chart-card rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="bar-chart-2" class="w-5 h-5 text-cyan-500"></i>
+                    Ventas Diarias
+                </h3>
+                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span id="chartDateRange">Últimos 30 días</span>
+                </div>
+            </div>
+            <div class="h-72">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </article>
+
+        <!-- Category Chart -->
+        <article class="chart-card rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-cyan-500"></i>
+                    Ventas por Categoría
+                </h3>
+            </div>
+            <div class="h-72">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </article>
     </div>
 
-    <div class="card-base p-6 bg-white dark:bg-gray-900">
-      <div class="flex items-start justify-between">
-        <div>
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Conversión</p>
-          <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">3.2%</p>
+    <!-- Second Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Top Products Chart -->
+        <article class="chart-card rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-cyan-500"></i>
+                    Top 10 Productos
+                </h3>
+            </div>
+            <div class="h-72">
+                <canvas id="topProductsChart"></canvas>
+            </div>
+        </article>
+
+        <!-- Orders by Status -->
+        <article class="chart-card rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-cyan-500"></i>
+                    Pedidos por Estado
+                </h3>
+            </div>
+            <div class="h-72">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </article>
+    </div>
+
+    <!-- Top Products Table -->
+    <article class="table-card rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="award" class="w-5 h-5 text-cyan-500"></i>
+                Top 10 Productos Más Vendidos
+            </h3>
+            <div class="flex items-center gap-2">
+                <select id="topProductsPeriod" class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent appearance-none">
+                    <option value="30">Últimos 30 días</option>
+                    <option value="7">Últimos 7 días</option>
+                    <option value="90">Últimos 90 días</option>
+                </select>
+            </div>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-          <i data-lucide="target" class="w-6 h-6 text-orange-600 dark:text-orange-400"></i>
+        <div class="overflow-x-auto">
+            <table class="w-full" id="topProductsTable">
+                <thead class="bg-gray-50 dark:bg-gray-800/50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12">#</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">Ventas</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ingresos</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">Ticket Prom.</th>
+                    </tr>
+                </thead>
+                <tbody id="topProductsBody" class="divide-y divide-gray-200 dark:divide-gray-800">
+                    <tr>
+                        <td colspan="6" class="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center animate-pulse">
+                                    <i data-lucide="loader" class="w-5 h-5 text-gray-400"></i>
+                                </div>
+                                <span>Cargando datos...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-      </div>
-      <p class="mt-4 text-sm text-orange-600 dark:text-orange-400 font-medium flex items-center gap-1">
-        <i data-lucide="arrow-down" class="w-4 h-4"></i> -0.4% vs mes anterior
-      </p>
-    </div>
-  </div>
+    </article>
 
-  <!-- Charts Row -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="card-base p-6 bg-white dark:bg-gray-900">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-        <i data-lucide="bar-chart-2" class="w-5 h-5 text-cyan-500"></i>
-        Ventas por día (últimos 30 días)
-      </h3>
-      <div class="h-64">
-        <canvas id="salesChart"></canvas>
-      </div>
-    </div>
+    <!-- Additional Metrics Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent Orders -->
+        <article class="table-card rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="clock" class="w-5 h-5 text-cyan-500"></i>
+                    Pedidos Recientes
+                </h3>
+                <a href="{% url 'staff:order_list' %}" class="text-sm text-cyan-500 hover:text-cyan-600 font-medium">Ver todos →</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full" id="recentOrdersTable">
+                    <thead class="bg-gray-50 dark:bg-gray-800/50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentOrdersBody" class="divide-y divide-gray-200 dark:divide-gray-800">
+                        <tr><td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
 
-    <div class="card-base p-6 bg-white dark:bg-gray-900">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-        <i data-lucide="pie-chart" class="w-5 h-5 text-cyan-500"></i>
-        Ventas por categoría
-      </h3>
-      <div class="h-64">
-        <canvas id="categoryChart"></canvas>
-      </div>
-    </div>
-  </div>
+        <!-- Low Stock Products -->
+        <article class="table-card rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-500"></i>
+                    Stock Bajo
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full" id="lowStockTable">
+                    <thead class="bg-gray-50 dark:bg-gray-800/50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20">Stock</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lowStockBody" class="divide-y divide-gray-200 dark:divide-gray-800">
+                        <tr><td colspan="3" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
 
-  <!-- Top products table -->
-  <div class="card-base overflow-hidden bg-white dark:bg-gray-900">
-    <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-        <i data-lucide="award" class="w-5 h-5 text-cyan-500"></i>
-        Top 10 productos más vendidos
-      </h3>
+        <!-- Top Categories -->
+        <article class="table-card rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="folder-tree" class="w-5 h-5 text-cyan-500"></i>
+                    Categorías Top
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full" id="topCategoriesTable">
+                    <thead class="bg-gray-50 dark:bg-gray-800/50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ventas</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ingresos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topCategoriesBody" class="divide-y divide-gray-200 dark:divide-gray-800">
+                        <tr><td colspan="3" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
     </div>
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50 dark:bg-gray-800/50">
-          <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
-            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ventas</th>
-            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ingresos</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-            <td class="px-4 py-3 font-mono text-gray-900 dark:text-white">1</td>
-            <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">RTX 4090 24GB</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">Tarjetas Gráficas</td>
-            <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">45</td>
-            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">$80,955.00</td>
-          </tr>
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-            <td class="px-4 py-3 font-mono text-gray-900 dark:text-white">2</td>
-            <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">Ryzen 7 7800X3D</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">Procesadores</td>
-            <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">38</td>
-            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">$12,919.62</td>
-          </tr>
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-            <td class="px-4 py-3 font-mono text-gray-900 dark:text-white">3</td>
-            <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">DDR5 32GB 6000MHz</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">Memoria RAM</td>
-            <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">32</td>
-            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">$4,639.68</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+    let currentDateRange = '30';
+    let charts = {};
 
-  // Sales chart
-  const salesCtx = document.getElementById('salesChart');
-  if (salesCtx && typeof Chart !== 'undefined') {
-    new Chart(salesCtx, {
-      type: 'line',
-      data: {
-        labels: ['D1','D2','D3','D4','D5','D6','D7','D8','D9','D10','D11','D12','D13','D14','D15','D16','D17','D18','D19','D20','D21','D22','D23','D24','D25','D26','D27','D28','D29','D30'],
-        datasets: [{
-          label: 'Ventas ($)',
-          data: [420,380,450,520,480,510,600,550,580,620,590,610,650,680,720,700,750,780,800,820,850,870,900,920,950,980,1000,1020,1050,1080],
-          borderColor: 'rgb(6, 182, 212)',
-          backgroundColor: 'rgba(6, 182, 212, 0.1)',
-          tension: 0.3,
-          fill: true,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280' } },
-          x: { grid: { display: false }, ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280' } }
-        }
-      }
-    });
-  }
+    // Set date range
+    function setDateRange(btn, range) {
+        document.querySelectorAll('.date-btn').forEach(b => {
+            b.classList.remove('active');
+            b.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border-gray-200', 'dark:border-gray-700');
+            b.classList.remove('bg-cyan-500', 'text-white', 'border-cyan-500');
+        });
+        btn.classList.add('active');
+        btn.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300', 'border-gray-200', 'dark:border-gray-700');
+        btn.classList.add('bg-cyan-500', 'text-white', 'border-cyan-500');
+        currentDateRange = range;
+        loadAllData();
+    }
 
-  // Category chart
-  const catCtx = document.getElementById('categoryChart');
-  if (catCtx && typeof Chart !== 'undefined') {
-    new Chart(catCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['GPU', 'CPU', 'RAM', 'Almacenamiento', 'Placas Base', 'Fuentes', 'Gabinetes', 'Periféricos'],
-        datasets: [{
-          data: [35, 22, 15, 10, 8, 5, 3, 2],
-          backgroundColor: [
-            'rgba(6, 182, 212, 0.8)',
-            'rgba(16, 185, 129, 0.8)',
-            'rgba(245, 158, 11, 0.8)',
-            'rgba(239, 68, 68, 0.8)',
-            'rgba(139, 92, 246, 0.8)',
-            'rgba(236, 72, 153, 0.8)',
-            'rgba(59, 130, 246, 0.8)',
-            'rgba(20, 184, 166, 0.8)'
-          ],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280', padding: 16, usePointStyle: true, font: { size: 11 } } }
+    // Format currency
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+    }
+
+    function formatCurrencyUSD(value) {
+        return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Format number
+    function formatNumber(value) {
+        return new Intl.NumberFormat('es-CO').format(value);
+    }
+
+    // Load all data
+    async function loadAllData() {
+        try {
+            const response = await fetch(`{% url 'staff:reports_data' %}?days=${currentDateRange}`);
+            if (!response.ok) throw new Error('Error al cargar datos');
+            const data = await response.json();
+            
+            updateKPIs(data);
+            updateCharts(data);
+            updateTables(data);
+        } catch (error) {
+            console.error('Error loading reports:', error);
+            showErrorState();
         }
-      }
+    }
+
+    function updateKPIs(data) {
+        // Revenue
+        document.getElementById('kpiRevenue').textContent = formatCurrencyUSD(data.revenue);
+        updateTrend('kpiRevenueTrend', 'kpiRevenueTrendIcon', data.revenue_trend);
+        
+        // Orders
+        document.getElementById('kpiOrders').textContent = formatNumber(data.orders_count);
+        updateTrend('kpiOrdersTrend', 'kpiOrdersTrendIcon', data.orders_trend);
+        
+        // AOV
+        document.getElementById('kpiAOV').textContent = formatCurrencyUSD(data.aov);
+        updateTrend('kpiAOVTrend', 'kpiAOVTrendIcon', data.aov_trend);
+        
+        // Conversion
+        document.getElementById('kpiConversion').textContent = data.conversion_rate.toFixed(2) + '%';
+        updateTrend('kpiConversionTrend', 'kpiConversionTrendIcon', data.conversion_trend);
+    }
+
+    function updateTrend(textId, iconId, trend) {
+        const textEl = document.getElementById(textId);
+        const iconEl = document.getElementById(iconId);
+        
+        if (trend > 0) {
+            textEl.textContent = '+' + trend.toFixed(1) + '%';
+            textEl.className = 'text-sm font-medium trend-up';
+            iconEl.outerHTML = '<i data-lucide="arrow-up" class="w-4 h-4 trend-up"></i>';
+        } else if (trend < 0) {
+            textEl.textContent = trend.toFixed(1) + '%';
+            textEl.className = 'text-sm font-medium trend-down';
+            iconEl.outerHTML = '<i data-lucide="arrow-down" class="w-4 h-4 trend-down"></i>';
+        } else {
+            textEl.textContent = '0%';
+            textEl.className = 'text-sm font-medium trend-neutral';
+            iconEl.outerHTML = '<i data-lucide="minus" class="w-4 h-4 trend-neutral"></i>';
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function updateCharts(data) {
+        // Sales Chart (Line)
+        if (charts.sales) charts.sales.destroy();
+        const salesCtx = document.getElementById('salesChart');
+        if (salesCtx && data.sales_chart) {
+            charts.sales = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: data.sales_chart.labels,
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: data.sales_chart.values,
+                        borderColor: 'rgb(6, 182, 212)',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                    }]
+                },
+                options: getChartOptions()
+            });
+        }
+
+        // Category Chart (Doughnut)
+        if (charts.category) charts.category.destroy();
+        const catCtx = document.getElementById('categoryChart');
+        if (catCtx && data.category_chart) {
+            charts.category = new Chart(catCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.category_chart.labels,
+                    datasets: [{
+                        data: data.category_chart.values,
+                        backgroundColor: [
+                            'rgba(6, 182, 212, 0.85)',
+                            'rgba(16, 185, 129, 0.85)',
+                            'rgba(245, 158, 11, 0.85)',
+                            'rgba(239, 68, 68, 0.85)',
+                            'rgba(139, 92, 246, 0.85)',
+                            'rgba(236, 72, 153, 0.85)',
+                            'rgba(59, 130, 246, 0.85)',
+                            'rgba(20, 184, 166, 0.85)',
+                            'rgba(124, 58, 237, 0.85)',
+                            'rgba(249, 115, 22, 0.85)'
+                        ],
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: getTextColor(), padding: 20, usePointStyle: true, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: ctx => `${ctx.label}: ${formatCurrencyUSD(ctx.raw)} (${ctx.parsed}%)` } }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        // Top Products Chart (Horizontal Bar)
+        if (charts.topProducts) charts.topProducts.destroy();
+        const topCtx = document.getElementById('topProductsChart');
+        if (topCtx && data.top_products_chart) {
+            charts.topProducts = new Chart(topCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.top_products_chart.labels.reverse(),
+                    datasets: [{
+                        label: 'Unidades vendidas',
+                        data: data.top_products_chart.values.reverse(),
+                        backgroundColor: 'rgba(6, 182, 212, 0.8)',
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, grid: { color: getGridColor() }, ticks: { color: getTextColor() } },
+                        y: { grid: { display: false }, ticks: { color: getTextColor() } }
+                    }
+                }
+            });
+        }
+
+        // Status Chart (Doughnut)
+        if (charts.status) charts.status.destroy();
+        const statusCtx = document.getElementById('statusChart');
+        if (statusCtx && data.status_chart) {
+            const statusColors = {
+                'pendiente': 'rgba(245, 158, 11, 0.85)',
+                'procesando': 'rgba(59, 130, 246, 0.85)',
+                'enviado': 'rgba(139, 92, 246, 0.85)',
+                'completado': 'rgba(16, 185, 129, 0.85)',
+                'cancelado': 'rgba(239, 68, 68, 0.85)'
+            };
+            charts.status = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.status_chart.labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+                    datasets: [{
+                        data: data.status_chart.values,
+                        backgroundColor: data.status_chart.labels.map(l => statusColors[l] || 'rgba(107, 114, 128, 0.85)'),
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: getTextColor(), padding: 20, usePointStyle: true, font: { size: 11 } } }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+    }
+
+    function getChartOptions() {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            interaction: { intersect: false, mode: 'index' },
+            scales: {
+                y: { beginAtZero: true, grid: { color: getGridColor() }, ticks: { color: getTextColor(), callback: v => '$' + v.toLocaleString() } },
+                x: { grid: { display: false }, ticks: { color: getTextColor(), maxTicksLimit: 10 } }
+            }
+        };
+    }
+
+    function getTextColor() {
+        return document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280';
+    }
+
+    function getGridColor() {
+        return document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+    }
+
+    function updateTables(data) {
+        // Top Products Table
+        const topBody = document.getElementById('topProductsBody');
+        if (data.top_products && data.top_products.length > 0) {
+            topBody.innerHTML = data.top_products.map((p, i) => `
+                <tr class="product-row">
+                    <td class="px-4 py-3">
+                        <span class="rank-badge ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            ${p.image ? `<img src="${p.image}" alt="${p.name}" class="w-10 h-10 rounded-lg object-cover">` : '<div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center"><i data-lucide="package" class="w-5 h-5 text-gray-400"></i></div>'}
+                            <div>
+                                <p class="font-medium text-gray-900 dark:text-white truncate max-w-xs">${p.name}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">${p.brand}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400">${p.category}</td>
+                    <td class="px-4 py-3 text-center font-medium text-gray-900 dark:text-white">${formatNumber(p.units_sold)}</td>
+                    <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">${formatCurrencyUSD(p.revenue)}</td>
+                    <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">${formatCurrencyUSD(p.aov)}</td>
+                </tr>
+            `).join('');
+        } else {
+            topBody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No hay datos</td></tr>';
+        }
+
+        // Recent Orders Table
+        const recentBody = document.getElementById('recentOrdersBody');
+        if (data.recent_orders && data.recent_orders.length > 0) {
+            recentBody.innerHTML = data.recent_orders.map(o => `
+                <tr class="product-row">
+                    <td class="px-4 py-3 font-mono text-gray-900 dark:text-white">#${o.order_number || o.id}</td>
+                    <td class="px-4 py-3">
+                        <p class="font-medium text-gray-900 dark:text-white">${o.client_name}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">${o.client_email}</p>
+                    </td>
+                    <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">${formatCurrencyUSD(o.total)}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium status-${o.status}">${o.status.charAt(0).toUpperCase() + o.status.slice(1)}</span>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            recentBody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Sin pedidos recientes</td></tr>';
+        }
+
+        // Low Stock Table
+        const lowBody = document.getElementById('lowStockBody');
+        if (data.low_stock && data.low_stock.length > 0) {
+            lowBody.innerHTML = data.low_stock.map(p => `
+                <tr class="product-row">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            ${p.image ? `<img src="${p.image}" alt="${p.name}" class="w-8 h-8 rounded-lg object-cover">` : '<div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center"><i data-lucide="package" class="w-4 h-4 text-gray-400"></i></div>'}
+                            <div>
+                                <p class="font-medium text-gray-900 dark:text-white truncate max-w-xs">${p.name}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">${p.brand}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${p.stock === 0 ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}">
+                            ${p.stock} ${p.stock === 0 ? 'Agotado' : 'unidades'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400">${p.category}</td>
+                </tr>
+            `).join('');
+        } else {
+            lowBody.innerHTML = '<tr><td colspan="3" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No hay productos con stock bajo</td></tr>';
+        }
+
+        // Top Categories Table
+        const catBody = document.getElementById('topCategoriesBody');
+        if (data.top_categories && data.top_categories.length > 0) {
+            catBody.innerHTML = data.top_categories.map((c, i) => `
+                <tr class="product-row">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <span class="rank-badge ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</span>
+                            <span class="font-medium text-gray-900 dark:text-white">${c.name}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">${formatNumber(c.units_sold)}</td>
+                    <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">${formatCurrencyUSD(c.revenue)}</td>
+                </tr>
+            `).join('');
+        } else {
+            catBody.innerHTML = '<tr><td colspan="3" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No hay datos</td></tr>';
+        }
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function showErrorState() {
+        document.querySelectorAll('[id$="Body"]').forEach(el => {
+            el.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-red-500">Error al cargar datos</td></tr>';
+        });
+    }
+
+    function exportReport() {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Exportar Reporte',
+                text: 'Esta funcionalidad estará disponible próximamente.',
+                icon: 'info',
+                confirmButtonColor: '#06b6d4'
+            });
+        } else {
+            alert('Exportar reporte - próximamente');
+        }
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        loadAllData();
     });
-  }
-});
+
+    // Re-render charts on theme change
+    const observer = new MutationObserver(() => {
+        Object.values(charts).forEach(chart => chart?.update());
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
 {% endblock %}
 

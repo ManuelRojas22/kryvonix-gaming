@@ -5,7 +5,7 @@ from apps.staff.views.catalog import (
     ProductListView, ProductCreateView, ProductUpdateView, ProductDetailView, ProductDeleteView,
     OrderListView, OrderDetailView,
     generate_slug, toggle_product_status, toggle_product_featured, bulk_action_products,
-    order_update_status
+    order_update_status, reports_data
 )
 from apps.staff.views.users import UserListView, UserDetailView, toggle_user_active, toggle_user_staff
 
@@ -16,6 +16,6 @@ __all__ = [
     'ProductListView', 'ProductCreateView', 'ProductUpdateView', 'ProductDetailView', 'ProductDeleteView',
     'OrderListView', 'OrderDetailView',
     'generate_slug', 'toggle_product_status', 'toggle_product_featured', 'bulk_action_products',
-    'order_update_status',
+    'order_update_status', 'reports_data',
     'UserListView', 'UserDetailView', 'toggle_user_active', 'toggle_user_staff'
 ]
