@@ -1,0 +1,209 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}{{ product.name }} - Panel Staff{% endblock %}
+{% block page_title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-4">
+            {% if product.primary_image %}
+                <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}" class="w-16 h-16 rounded-lg object-cover">
+            {% else %}
+                <div class="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <i data-lucide="package" class="w-8 h-8 text-gray-400"></i>
+                </div>
+            {% endif %}
+            <div>
+                <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">{{ product.name }}</h1>
+                <p class="text-gray-500 dark:text-gray-400">{{ product.brand.name }} · {{ product.category.name }}</p>
+            </div>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'catalog:product_detail' product.slug %}" target="_blank" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-medium rounded-lg transition-colors">
+                <i data-lucide="external-link" class="w-4 h-4 inline-block mr-2"></i> Ver en tienda
+            </a>
+            <a href="{% url 'staff:product_edit' product.pk %}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors">
+                <i data-lucide="edit" class="w-4 h-4 inline-block mr-2"></i> Editar
+            </a>
+            <a href="{% url 'staff:product_delete' product.pk %}" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors">
+                <i data-lucide="trash-2" class="w-4 h-4 inline-block mr-2"></i> Eliminar
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Description -->
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-5 h-5 text-cyan-500"></i> Descripción
+                </h3>
+                <div class="prose prose-gray dark:prose-invert max-w-none">{{ product.description|safe }}</div>
+            </div>
+
+            <!-- Images -->
+            {% if product.images.all %}
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="image" class="w-5 h-5 text-cyan-500"></i> Imágenes ({{ product.images.count }})
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {% for img in product.images.all %}
+                    <div class="relative group">
+                        <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}" class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                            <span class="text-white text-sm font-medium">{{ img.order }}</span>
+                            {% if img.alt_text %}
+                                <span class="text-white/80 text-xs px-2 py-1 bg-black/50 rounded">{{ img.alt_text }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Specifications -->
+            {% if product.specs.all %}
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5 text-cyan-500"></i> Especificaciones ({{ product.specs.count }})
+                </h3>
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for spec in product.specs.all %}
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ spec.name }}</dt>
+                        <dd class="text-sm text-gray-900 dark:text-white font-medium">{{ spec.value }}</dd>
+                    {% endfor %}
+                </dl>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Pricing Card -->
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="dollar-sign" class="w-5 h-5 text-cyan-500"></i> Precios
+                </h3>
+                <dl class="space-y-4">
+                    <div>
+                        <dt class="text-sm text-gray-500 dark:text-gray-400">Precio Base</dt>
+                        <dd class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">${{ product.price|floatformat:2 }}</dd>
+                    </div>
+                    {% if product.has_discount %}
+                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <dt class="text-sm text-gray-500 dark:text-gray-400">Precio con Descuento</dt>
+                            <dd class="text-2xl font-bold font-orbitron text-green-600 dark:text-green-400">${{ product.current_price|floatformat:2 }}</dd>
+                            <p class="text-sm text-green-600 dark:text-green-400 mt-1">Ahorra ${{ product.price|sub:product.discount_price|floatformat:2 }} ({{ product.discount_percent }}%)</p>
+                        </div>
+                    {% endif %}
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <dt class="text-sm text-gray-500 dark:text-gray-400">Garantía</dt>
+                        <dd class="text-gray-900 dark:text-white">{{ product.warranty_months }} meses</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Stock Card -->
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="package" class="w-5 h-5 text-cyan-500"></i> Stock
+                </h3>
+                <dl class="space-y-4">
+                    <div>
+                        <dt class="text-sm text-gray-500 dark:text-gray-400">Disponible</dt>
+                        <dd class="text-3xl font-bold font-orbitron {% if product.stock == 0 %}text-red-600 dark:text-red-400{% elif product.stock < 5 %}text-yellow-600 dark:text-yellow-400{% else %}text-green-600 dark:text-green-400{% endif %}">{{ product.stock }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-500 dark:text-gray-400">Estado</dt>
+                        <dd class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {% if product.in_stock %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{% else %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400{% endif %}">
+                                {% if product.in_stock %}En Stock{% else %}Agotado{% endif %}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <dt class="text-sm text-gray-500 dark:text-gray-400">Vendidos</dt>
+                        <dd class="text-gray-900 dark:text-white">{{ product.units_sold }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Status Card -->
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="toggle-right" class="w-5 h-5 text-cyan-500"></i> Estado
+                </h3>
+                <dl class="space-y-4">
+                    <div>
+                        <dt class="text-sm text-gray-500 dark:text-gray-400">Activo</dt>
+                        <dd class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {% if product.is_active %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{% else %}bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400{% endif %}">
+                                {% if product.is_active %}Sí{% else %}No{% endif %}
+                            </span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-500 dark:text-gray-400">Destacado</dt>
+                        <dd class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {% if product.is_featured %}bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400{% else %}bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400{% endif %}">
+                                {% if product.is_featured %}Sí{% else %}No{% endif %}
+                            </span>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- PC Builder Fields -->
+            {% if product.socket or product.ram_type or product.wattage or product.length_mm or product.form_factor %}
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="cpu" class="w-5 h-5 text-cyan-500"></i> PC Builder
+                </h3>
+                <dl class="space-y-3">
+                    {% if product.socket %}
+                        <div class="flex justify-between"><dt class="text-sm text-gray-500 dark:text-gray-400">Socket</dt><dd class="text-sm text-gray-900 dark:text-white">{{ product.socket }}</dd></div>
+                    {% endif %}
+                    {% if product.ram_type %}
+                        <div class="flex justify-between"><dt class="text-sm text-gray-500 dark:text-gray-400">RAM</dt><dd class="text-sm text-gray-900 dark:text-white">{{ product.ram_type }}</dd></div>
+                    {% endif %}
+                    {% if product.wattage %}
+                        <div class="flex justify-between"><dt class="text-sm text-gray-500 dark:text-gray-400">Vatios</dt><dd class="text-sm text-gray-900 dark:text-white">{{ product.wattage }}W</dd></div>
+                    {% endif %}
+                    {% if product.length_mm %}
+                        <div class="flex justify-between"><dt class="text-sm text-gray-500 dark:text-gray-400">Largo</dt><dd class="text-sm text-gray-900 dark:text-white">{{ product.length_mm }} mm</dd></div>
+                    {% endif %}
+                    {% if product.form_factor %}
+                        <div class="flex justify-between"><dt class="text-sm text-gray-500 dark:text-gray-400">Factor de forma</dt><dd class="text-sm text-gray-900 dark:text-white">{{ product.form_factor }}</dd></div>
+                    {% endif %}
+                </dl>
+            </div>
+            {% endif %}
+
+            <!-- Dates -->
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-5 h-5 text-cyan-500"></i> Fechas
+                </h3>
+                <dl class="space-y-3 text-sm">
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Creado</dt><dd class="text-gray-900 dark:text-white">{{ product.created_at|date:"d/m/Y H:i" }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Actualizado</dt><dd class="text-gray-900 dark:text-white">{{ product.updated_at|date:"d/m/Y H:i" }}</dd></div>
+                </dl>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
+{% endblock %}

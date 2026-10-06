@@ -1,0 +1,55 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Eliminar Categoría - Panel Staff{% endblock %}
+{% block page_title %}Eliminar Categoría{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Eliminar Categoría</h2>
+        </div>
+
+        <div class="p-6">
+            <div class="flex items-center gap-4 mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <i data-lucide="alert-triangle" class="w-8 h-8 text-red-500 flex-shrink-0"></i>
+                <div>
+                    <p class="font-medium text-red-800 dark:text-red-400">¿Estás seguro de que quieres eliminar esta categoría?</p>
+                    <p class="text-sm text-red-700 dark:text-red-500 mt-1">Esta acción no se puede deshacer.</p>
+                </div>
+            </div>
+
+            <dl class="space-y-4 mb-6">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre</dt>
+                    <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">{{ object.name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Slug</dt>
+                    <dd class="mt-1 text-gray-900 dark:text-white font-mono">{{ object.slug }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Productos asociados</dt>
+                    <dd class="mt-1 text-gray-900 dark:text-white">{{ object.products.count }}</dd>
+                </div>
+            </dl>
+
+            {% if object.products.exists %}
+                <div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-yellow-500 inline-block mr-2"></i>
+                    <span class="text-yellow-800 dark:text-yellow-400">Esta categoría tiene <strong>{{ object.products.count }}</strong> producto(s) asociado(s). Al eliminarla, los productos quedarán sin categoría.</span>
+                </div>
+            {% endif %}
+
+            <form method="post" class="flex gap-3">
+                {% csrf_token %}
+                <a href="{% url 'staff:category_list' %}" class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors text-center">Cancelar</a>
+                <button type="submit" class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors">
+                    <i data-lucide="trash-2" class="w-4 h-4 inline-block mr-2"></i>
+                    Eliminar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
