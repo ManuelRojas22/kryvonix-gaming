@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static catalog_tags %}
 
-{% block title %}Arma tu PC Gaming - VEXOR GAMING{% endblock %}
+{% block title %}Arma tu PC Gaming - Kryvonix Gaming{% endblock %}
 {% block meta_description %}Configura tu PC gaming ideal seleccionando componentes compatibles. Ver precio total en tiempo real con precios reales de nuestra tienda.{% endblock %}
 
 {% block extra_head %}
@@ -68,7 +68,12 @@
                             data-name="{{ p.name }}"
                             data-brand="{{ p.brand }}"
                             data-slug="{{ p.slug }}"
-                            data-image="{{ p.image|default:'' }}">
+                            data-image="{{ p.image|default:'' }}"
+                            data-socket="{{ p.socket|default:'' }}"
+                            data-ram-type="{{ p.ram_type|default:'' }}"
+                            data-wattage="{{ p.wattage|default:'' }}"
+                            data-length="{{ p.length_mm|default:'' }}"
+                            data-form-factor="{{ p.form_factor|default:'' }}">
                       {{ p.brand }} {{ p.name }} – ${{ p.price|floatformat:2 }}
                     </option>
                   {% endfor %}
@@ -111,6 +116,28 @@
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Los precios son referenciales y pueden variar según disponibilidad.</p>
           </div>
 
+          <!-- Power estimate -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-600 dark:text-gray-400">Consumo estimado</span>
+              <span id="power-estimate" class="font-orbitron text-primary-600 dark:text-primary-400">0 W</span>
+            </div>
+            <div class="flex items-center justify-between text-sm mt-1">
+              <span class="text-gray-600 dark:text-gray-400">PSU recomendada (≥ 1.3×)</span>
+              <span id="psu-recommended" class="font-orbitron text-primary-600 dark:text-primary-400">0 W</span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Basado en TDP de CPU, GPU y componentes.</p>
+          </div>
+
+          <!-- Compatibility warnings -->
+          <div id="warnings" class="mb-4 hidden">
+            <h4 class="font-semibold text-yellow-600 dark:text-yellow-400 mb-2 flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              Advertencias de compatibilidad
+            </h4>
+            <ul id="warnings-list" class="space-y-1 text-sm text-yellow-700 dark:text-yellow-300"></ul>
+          </div>
+
           <a href="{% url 'catalog:shop' %}" class="btn-primary w-full py-3 text-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             Ver componentes en la tienda
@@ -120,6 +147,11 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             Guardar configuración
           </a>
+
+          <button type="button" id="btn-clear-all" class="btn-secondary w-full py-3 text-center mt-2" style="background:#ef4444;border-color:#ef4444;color:white;">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            Limpiar todo
+          </button>
         </div>
       </aside>
     </div>
@@ -135,6 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const summaryList = document.getElementById('summary-list');
   const emptySummary = document.getElementById('empty-summary');
   const totalEl = document.getElementById('total-price');
+  const powerEl = document.getElementById('power-estimate');
+  const psuEl = document.getElementById('psu-recommended');
+  const warningsBox = document.getElementById('warnings');
+  const warningsList = document.getElementById('warnings-list');
+  const clearBtn = document.getElementById('btn-clear-all');
 
   // Store selected component data per category
   const selected = {};
@@ -143,12 +180,80 @@ document.addEventListener('DOMContentLoaded', () => {
     return '$' + val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
+  function formatNumber(val) {
+    return val.toLocaleString();
+  }
+
   function updateTotal() {
     let total = 0;
+    let power = 0;
     Object.values(selected).forEach(item => {
       total += item.price;
+      // wattage may be missing
+      const w = parseInt(item.wattage) || 0;
+      power += w;
     });
     totalEl.textContent = formatPrice(total);
+    powerEl.textContent = formatNumber(power) + ' W';
+    const psu = Math.ceil(power * 1.3);
+    psuEl.textContent = formatNumber(psu) + ' W';
+    // PSU warning if selected PSU insufficient
+    checkWarnings();
+  }
+
+  function checkWarnings() {
+    const warns = [];
+    // CPU + Motherboard socket
+    if (selected.procesadores && selected['placas-base']) {
+      const cpu = selected.procesadores;
+      const mb = selected['placas-base'];
+      if (cpu.socket && mb.socket && cpu.socket !== mb.socket) {
+        warns.push(`Socket incompatibles: CPU usa ${cpu.socket}, placa base usa ${mb.socket}.`);
+      }
+    }
+    // RAM type vs Motherboard
+    if (selected['memoria-ram'] && selected['placas-base']) {
+      const ram = selected['memoria-ram'];
+      const mb = selected['placas-base'];
+      if (ram.ram_type && mb.ram_type && ram.ram_type !== mb.ram_type) {
+        warns.push(`Tipo de RAM incompatible: RAM es ${ram.ram_type}, placa base soporta ${mb.ram_type}.`);
+      }
+    }
+    // GPU length vs case (if case has length limit, we approximate 300mm)
+    if (selected['tarjetas-graficas'] && selected.gabinetes) {
+      const gpu = selected['tarjetas-graficas'];
+      const caseItem = selected.gabinetes;
+      const len = parseInt(gpu.length_mm) || 0;
+      // assume case max 300mm if not specified
+      const maxLen = parseInt(caseItem.length_mm) || 300;
+      if (len && len > maxLen) {
+        warns.push(`GPU muy larga (${len}mm) para el gabinete (máx ${maxLen}mm).`);
+      }
+    }
+    // PSU wattage vs estimated
+    if (selected['fuentes-poder']) {
+      const psu = selected['fuentes-poder'];
+      const psuW = parseInt(psu.wattage) || 0;
+      let totalPower = 0;
+      Object.values(selected).forEach(item => totalPower += parseInt(item.wattage) || 0);
+      const recommended = Math.ceil(totalPower * 1.3);
+      if (psuW && psuW < recommended) {
+        warns.push(`PSU de ${psuW}W puede ser insuficiente (recomendada ≥ ${recommended}W).`);
+      }
+    }
+
+    if (warns.length) {
+      warningsBox.classList.remove('hidden');
+      warningsList.innerHTML = '';
+      warns.forEach(w => {
+        const li = document.createElement('li');
+        li.textContent = w;
+        warningsList.appendChild(li);
+      });
+    } else {
+      warningsBox.classList.add('hidden');
+      warningsList.innerHTML = '';
+    }
   }
 
   function renderSummary() {
@@ -170,9 +275,25 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="text-xs text-gray-500 dark:text-gray-400">${item.brand}</p>
           </div>
         </div>
-        <span class="font-orbitron text-primary-600 dark:text-primary-400 price-tag">${formatPrice(item.price)}</span>
+        <div class="flex items-center gap-2">
+          <span class="font-orbitron text-primary-600 dark:text-primary-400 price-tag">${formatPrice(item.price)}</span>
+          <button type="button" data-cat="${cat}" class="remove-btn text-red-500 hover:text-red-700 p-1" aria-label="Quitar ${cat}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
       `;
       summaryList.appendChild(li);
+    });
+    // attach remove handlers
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cat = btn.dataset.cat;
+        const sel = document.getElementById(`select-${cat}`);
+        if (sel) {
+          sel.value = '';
+          sel.dispatchEvent(new Event('change'));
+        }
+      });
     });
   }
 
@@ -191,8 +312,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = opt.dataset.name;
         const brand = opt.dataset.brand;
         const image = opt.dataset.image;
+        // compatibility fields
+        const socket = opt.dataset.socket;
+        const ram_type = opt.dataset.ram_type;
+        const wattage = opt.dataset.wattage;
+        const length = opt.dataset.length;
+        const form_factor = opt.dataset.form_factor;
 
-        selected[cat] = { id: opt.value, name, brand, price, image: image || null };
+        selected[cat] = { id: opt.value, name, brand, price, image: image || null,
+                          socket, ram_type, wattage, length_mm: length, form_factor };
 
         if (preview) {
           preview.classList.remove('hidden');
@@ -208,6 +336,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       updateTotal();
       renderSummary();
+    });
+  });
+
+  // Clear all
+  clearBtn.addEventListener('click', () => {
+    selects.forEach(sel => {
+      sel.value = '';
+      sel.dispatchEvent(new Event('change'));
     });
   });
 
@@ -243,3 +379,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 {% endblock %}
+

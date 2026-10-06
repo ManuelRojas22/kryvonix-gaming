@@ -25,6 +25,8 @@ from apps.wishlist.utils import get_or_create_wishlist
 def register(request):
     """User registration."""
     if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('staff:dashboard')
         return redirect('catalog:home')
 
     if request.method == 'POST':
@@ -40,6 +42,9 @@ def register(request):
             # TODO: Send verification email
             messages.success(request, '¡Cuenta creada! Revisa tu email para verificar tu cuenta.')
             login(request, user)
+            # Redirect staff users to staff panel
+            if user.is_staff:
+                return redirect('staff:dashboard')
             return redirect('accounts:profile')
     else:
         form = UserRegistrationForm()
@@ -50,6 +55,8 @@ def register(request):
 def user_login(request):
     """User login."""
     if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('staff:dashboard')
         return redirect('catalog:home')
 
     if request.method == 'POST':
@@ -60,7 +67,11 @@ def user_login(request):
             # Merge session cart with user cart
             cart = get_or_create_cart(request)
             messages.success(request, f'¡Bienvenido, {user.get_short_name()}!')
-            next_url = request.GET.get('next', 'catalog:home')
+            # Redirect staff users to staff panel
+            if user.is_staff:
+                next_url = request.GET.get('next', 'staff:dashboard')
+            else:
+                next_url = request.GET.get('next', 'catalog:home')
             return redirect(next_url)
     else:
         form = UserLoginForm(request)

@@ -196,6 +196,12 @@ def pc_builder(request):
                 'price': float(p.current_price),
                 'slug': p.slug,
                 'image': p.primary_image.image.url if p.primary_image else None,
+                # Compatibility fields
+                'socket': p.socket,
+                'ram_type': p.ram_type,
+                'wattage': p.wattage,
+                'length_mm': p.length_mm,
+                'form_factor': p.form_factor,
             }
             for p in products
         ]

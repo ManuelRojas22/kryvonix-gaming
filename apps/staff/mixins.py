@@ -12,7 +12,7 @@ class StaffRequiredMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:
             from django.contrib.auth.views import redirect_to_login
-            return redirect_to_login(self.request.get_full_path(), 'accounts:login')
+            return redirect_to_login(self.request.get_full_path(), 'staff:login')
         return HttpResponseForbidden('Acceso denegado: se requieren permisos de staff.')
 
 
@@ -25,5 +25,5 @@ class SuperuserRequiredMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:
             from django.contrib.auth.views import redirect_to_login
-            return redirect_to_login(self.request.get_full_path(), 'accounts:login')
+            return redirect_to_login(self.request.get_full_path(), 'staff:login')
         return HttpResponseForbidden('Acceso denegado: se requieren permisos de superusuario.')

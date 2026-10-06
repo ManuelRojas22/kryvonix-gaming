@@ -3,7 +3,7 @@
 
 {% block meta_description %}{{ product.name }} - {{ product.brand.name }} - {{ product.description|truncatewords:30 }} - Precio: ${{ product.current_price }}{% endblock %}
 
-{% block title %}{{ product.name }} - {{ product.brand.name }} - VEXOR GAMING{% endblock %}
+{% block title %}{{ product.name }} - {{ product.brand.name }} - Kryvonix Gaming{% endblock %}
 
 {% block extra_head %}
 <!-- Open Graph -->
@@ -34,7 +34,7 @@
     "priceCurrency": "USD",
     "price": "{{ product.current_price|floatformat:2 }}",
     "availability": "https://schema.org/{% if product.in_stock %}InStock{% else %}OutOfStock{% endif %}",
-    "seller": { "@type": "Organization", "name": "VEXOR GAMING" }
+    "seller": { "@type": "Organization", "name": "Kryvonix Gaming" }
   }
   {% if product.primary_image %},
   "image": "{{ request.build_absolute_uri }}{{ product.primary_image.image.url }}"
@@ -342,3 +342,4 @@ function productGallery() {
 }
 </script>
 {% endblock %}
+

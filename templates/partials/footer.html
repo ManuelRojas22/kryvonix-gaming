@@ -4,12 +4,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
             <!-- Brand -->
             <div class="lg:col-span-2">
-                <a href="{% url 'catalog:home' %}" class="flex items-center gap-2 text-2xl font-orbitron font-bold text-primary-400 hover:opacity-80 transition-opacity mb-4" aria-label="VEXOR GAMING - Inicio">
-                    <svg class="w-10 h-10" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                        <rect width="32" height="32" rx="8" class="text-primary-400"/>
-                        <path d="M8 16L14 22L24 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>VEXOR</span>
+                <a href="{% url 'catalog:home' %}" class="flex items-center gap-2 text-2xl font-orbitron font-bold text-primary-400 hover:opacity-80 transition-opacity mb-4" aria-label="Kryvonix Gaming - Inicio">
+                    <span class="w-10 h-10 flex items-center justify-center bg-primary-600 dark:bg-primary-400 text-white rounded-lg font-orbitron text-2xl font-bold">K</span>
+                    <span>Kryvonix</span>
                 </a>
                 <p class="text-gray-400 dark:text-gray-500 max-w-xs mb-6">
                     Tu tienda de confianza para hardware y periféricos gamer. 
@@ -71,7 +68,7 @@
         <!-- Bottom bar -->
         <div class="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
             <p class="text-sm text-gray-500 dark:text-gray-500">
-                &copy; {% now "Y" %} VEXOR GAMING. Todos los derechos reservados.
+                &copy; {% now "Y" %} Kryvonix Gaming. Todos los derechos reservados.
             </p>
             <div class="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-500">
                 <a href="#" class="hover:text-primary-400 transition-colors">Términos y condiciones</a>
@@ -81,3 +78,4 @@
         </div>
     </div>
 </footer>
+
