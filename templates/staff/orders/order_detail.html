@@ -3,114 +3,264 @@
 {% block title %}Pedido #{{ order.id }} - Panel Staff{% endblock %}
 {% block page_title %}Pedido #{{ order.id }}{% endblock %}
 
+{% block extra_head %}
+<style>
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    .status-pendiente { background: #fef3c7; color: #92400e; }
+    .dark .status-pendiente { background: #92400e; color: #fef3c7; }
+    .status-procesando { background: #dbeafe; color: #1e40af; }
+    .dark .status-procesando { background: #1e40af; color: #dbeafe; }
+    .status-enviado { background: #e0e7ff; color: #3730a3; }
+    .dark .status-enviado { background: #3730a3; color: #e0e7ff; }
+    .status-completado { background: #d1fae5; color: #065f46; }
+    .dark .status-completado { background: #065f46; color: #d1fae5; }
+    .status-cancelado { background: #fee2e2; color: #991b1b; }
+    .dark .status-cancelado { background: #991b1b; color: #fee2e2; }
+    .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0.5rem;
+        top: 0;
+        bottom: -1.5rem;
+        width: 2px;
+        background: #e5e7eb;
+    }
+    .dark .timeline-item::before {
+        background: #374151;
+    }
+    .timeline-item:last-child::before {
+        display: none;
+    }
+    .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 0.25rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 0 0 1px #e5e7eb;
+    }
+    .dark .timeline-dot {
+        box-shadow: 0 0 0 1px #374151;
+    }
+    .timeline-dot.active {
+        background: #06b6d4;
+    }
+    .timeline-dot.completed {
+        background: #10b981;
+    }
+    .timeline-dot.pending {
+        background: #f59e0b;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="space-y-6">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div class="flex items-center gap-4">
-      <div class="w-12 h-12 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
-        <i data-lucide="shopping-cart" class="w-6 h-6 text-cyan-500"></i>
-      </div>
-      <div>
-        <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">Pedido #{{ order.id }}</h1>
-        <p class="text-gray-500 dark:text-gray-400">{{ order.client_name }} · {{ order.created_at|date:"d/m/Y H:i" }}</p>
-      </div>
-    </div>
-    <div class="flex flex-wrap gap-3">
-      <a href="{% url 'staff:order_list' %}" class="btn-secondary px-4 py-2">
-        <i data-lucide="arrow-left" class="w-4 h-4 inline-block mr-2"></i> Volver
-      </a>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Info -->
-    <div class="lg:col-span-2 space-y-6">
-      <div class="card-base p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <i data-lucide="user" class="w-5 h-5 text-cyan-500"></i>
-          Información del cliente
-        </h3>
-        <dl class="space-y-3 text-sm">
-          <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Nombre</dt><dd class="font-medium text-gray-900 dark:text-white">{{ order.client_name }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ order.client_email }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Teléfono</dt><dd class="font-medium text-gray-900 dark:text-white">{{ order.client_phone }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Dirección</dt><dd class="font-medium text-gray-900 dark:text-white">{{ order.shipping_address }}</dd></div>
-        </dl>
-      </div>
-
-      <div class="card-base p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <i data-lucide="package" class="w-5 h-5 text-cyan-500"></i>
-          Productos del pedido
-        </h3>
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-gray-50 dark:bg-gray-800/50">
-              <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio</th>
-                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cantidad</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-              {% for item in order.items.all %}
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{ item.product.name }}</td>
-                <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">${{ item.price|floatformat:2 }}</td>
-                <td class="px-4 py-3 text-center text-gray-600 dark:text-gray-400">{{ item.quantity }}</td>
-                <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">${{ item.subtotal|floatformat:2 }}</td>
-              </tr>
-              {% empty %}
-              <tr><td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Sin productos</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                <i data-lucide="shopping-cart" class="w-6 h-6 text-cyan-500"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">Pedido #{{ order.id }}</h1>
+                <p class="text-gray-500 dark:text-gray-400">{{ order.client_name }} · {{ order.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
         </div>
-      </div>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'staff:order_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver
+            </a>
+            <button onclick="printOrder()" class="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-medium rounded-lg transition-colors">
+                <i data-lucide="printer" class="w-4 h-4"></i> Imprimir
+            </button>
+        </div>
     </div>
 
-    <!-- Sidebar summary -->
-    <div class="space-y-6">
-      <div class="card-base p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <i data-lucide="credit-card" class="w-5 h-5 text-cyan-500"></i>
-          Resumen
-        </h3>
-        <dl class="space-y-3 text-sm">
-          <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Subtotal</dt><dd class="font-medium text-gray-900 dark:text-white">${{ order.subtotal|floatformat:2 }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Envío</dt><dd class="font-medium text-gray-900 dark:text-white">${{ order.shipping_cost|floatformat:2 }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Impuestos</dt><dd class="font-medium text-gray-900 dark:text-white">${{ order.tax|floatformat:2 }}</dd></div>
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between text-lg font-bold">
-            <dt class="text-gray-900 dark:text-white">Total</dt>
-            <dd class="font-orbitron text-primary-600 dark:text-primary-400">${{ order.total|floatformat:2 }}</dd>
-          </div>
-        </dl>
-      </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Status Timeline -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                    <i data-lucide="timeline" class="w-5 h-5 text-cyan-500"></i>
+                    Historial de Estado
+                </h3>
+                <div class="space-y-6">
+                    {% with statuses="pendiente,procesando,enviado,completado,cancelado" %}
+                    {% for status_key in statuses|split:"," %}
+                    {% with is_current=order.status|slugify|add:"=="|add:status_key %}
+                    <div class="timeline-item flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <div class="timeline-dot {% if is_current %}active{% elif forloop.counter <= statuses|split:","|length|add:0 %}completed{% else %}pending{% endif %}" style="{% if order.status == 'pendiente' and forloop.first %}background: #f59e0b;{% elif order.status == 'procesando' and forloop.counter <= 2 %}background: #10b981;{% elif order.status == 'enviado' and forloop.counter <= 3 %}background: #10b981;{% elif order.status == 'completado' and forloop.counter <= 4 %}background: #10b981;{% elif order.status == 'cancelado' %}background: #ef4444;{% else %}background: #d1d5db;{% endif %}"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-gray-900 dark:text-white capitalize">{{ status_key }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {% if forloop.first %}Pedido creado{% elif status_key == 'procesando' %}Preparando envío{% elif status_key == 'enviado' %}En camino{% elif status_key == 'completado' %}Entregado{% elif status_key == 'cancelado' %}Pedido cancelado{% endif %}
+                            </p>
+                        </div>
+                        {% if is_current %}
+                        <span class="text-xs font-medium text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/30 px-2 py-1 rounded-full">Actual</span>
+                        {% endif %}
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                    {% endwith %}
+                </div>
+            </div>
 
-      <div class="card-base p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <i data-lucide="check-circle" class="w-5 h-5 text-cyan-500"></i>
-          Estado
-        </h3>
-        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-          <option value="pendiente" {% if order.status == 'pendiente' %}selected{% endif %}>Pendiente</option>
-          <option value="procesando" {% if order.status == 'procesando' %}selected{% endif %}>Procesando</option>
-          <option value="enviado" {% if order.status == 'enviado' %}selected{% endif %}>Enviado</option>
-          <option value="completado" {% if order.status == 'completado' %}selected{% endif %}>Completado</option>
-          <option value="cancelado" {% if order.status == 'cancelado' %}selected{% endif %}>Cancelado</option>
-        </select>
-      </div>
+            <!-- Customer Info -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-5 flex items-center gap-2">
+                    <i data-lucide="user" class="w-5 h-5 text-cyan-500"></i>
+                    Información del Cliente
+                </h3>
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div><dt class="text-gray-500 dark:text-gray-400">Nombre</dt><dd class="font-medium text-gray-900 dark:text-white mt-1">{{ order.client_name }}</dd></div>
+                    <div><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white mt-1">{{ order.client_email }}</dd></div>
+                    <div><dt class="text-gray-500 dark:text-gray-400">Teléfono</dt><dd class="font-medium text-gray-900 dark:text-white mt-1">{{ order.client_phone }}</dd></div>
+                    <div class="sm:col-span-2"><dt class="text-gray-500 dark:text-gray-400">Dirección de envío</dt><dd class="font-medium text-gray-900 dark:text-white mt-1 whitespace-pre-wrap">{{ order.shipping_address }}</dd></div>
+                </dl>
+            </div>
+
+            <!-- Order Items -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="package" class="w-5 h-5 text-cyan-500"></i>
+                        Productos ({{ order.items_count }})
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-800/50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Producto</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio Unit.</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cant.</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                            {% for item in order.items.all %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center gap-3">
+                                        {% if item.product.primary_image %}
+                                        <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="w-10 h-10 rounded-lg object-cover">
+                                        {% else %}
+                                        <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                            <i data-lucide="package" class="w-5 h-5 text-gray-400"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <p class="font-medium text-gray-900 dark:text-white">{{ item.product.name }}</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ item.product.brand.name }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-right text-gray-600 dark:text-gray-400">${{ item.price|floatformat:2 }}</td>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-medium">{{ item.quantity }}</span>
+                                </td>
+                                <td class="px-4 py-4 text-right font-semibold text-gray-900 dark:text-white">${{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Sin productos en este pedido</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Status & Actions -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-cyan-500"></i>
+                    Estado del Pedido
+                </h3>
+                <form method="post" action="{% url 'staff:order_update_status' order.pk %}" class="space-y-4" id="statusForm">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        {% for value, label in status_choices %}
+                        <label class="flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer {% if order.status == value %}border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20{% else %}border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600{% endif %}">
+                            <input type="radio" name="status" value="{{ value }}" {% if order.status == value %}checked{% endif %} class="w-4 h-4 text-cyan-500 border-gray-300 focus:ring-cyan-500" onchange="this.form.submit()">
+                            <span class="font-medium text-gray-900 dark:text-white capitalize">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </form>
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 text-center">El cambio de estado notificará al cliente por email.</p>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-5 flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-cyan-500"></i>
+                    Resumen del Pedido
+                </h3>
+                <dl class="space-y-3 text-sm">
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Subtotal</dt><dd class="font-medium text-gray-900 dark:text-white">${{ order.subtotal|floatformat:2 }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Envío</dt><dd class="font-medium text-gray-900 dark:text-white">${{ order.shipping_cost|floatformat:2 }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Impuestos</dt><dd class="font-medium text-gray-900 dark:text-white">${{ order.tax|floatformat:2 }}</dd></div>
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between text-lg font-bold">
+                        <dt class="text-gray-900 dark:text-white">Total</dt>
+                        <dd class="font-orbitron text-primary-600 dark:text-primary-400">${{ order.total|floatformat:2 }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Payment Info -->
+            {% if order.payment_method %}
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-cyan-500"></i>
+                    Pago
+                </h3>
+                <dl class="space-y-3 text-sm">
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Método</dt><dd class="font-medium text-gray-900 dark:text-white capitalize">{{ order.payment_method }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Estado</dt><dd class="font-medium text-gray-900 dark:text-white capitalize">{{ order.payment_status }}</dd></div>
+                    {% if order.transaction_id %}
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Transacción</dt><dd class="font-medium text-gray-900 dark:text-white font-mono text-xs">{{ order.transaction_id }}</dd></div>
+                    {% endif %}
+                </dl>
+            </div>
+            {% endif %}
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  if (typeof lucide !== 'undefined') lucide.createIcons();
-});
+    function printOrder() {
+        window.print();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
 </script>
 {% endblock %}
 

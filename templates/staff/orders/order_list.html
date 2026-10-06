@@ -3,50 +3,267 @@
 {% block title %}Pedidos - Panel Staff{% endblock %}
 {% block page_title %}Pedidos{% endblock %}
 
+{% block extra_head %}
+<style>
+    .order-card {
+        transition: all 0.2s ease;
+    }
+    .order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+    .dark .order-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .stats-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border: 1px solid #e5e7eb;
+    }
+    .dark .stats-card {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        border: 1px solid #374151;
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .status-pendiente { background: #fef3c7; color: #92400e; }
+    .dark .status-pendiente { background: #92400e; color: #fef3c7; }
+    .status-procesando { background: #dbeafe; color: #1e40af; }
+    .dark .status-procesando { background: #1e40af; color: #dbeafe; }
+    .status-enviado { background: #e0e7ff; color: #3730a3; }
+    .dark .status-enviado { background: #3730a3; color: #e0e7ff; }
+    .status-completado { background: #d1fae5; color: #065f46; }
+    .dark .status-completado { background: #065f46; color: #d1fae5; }
+    .status-cancelado { background: #fee2e2; color: #991b1b; }
+    .dark .status-cancelado { background: #991b1b; color: #fee2e2; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="space-y-6">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div>
-      <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">Pedidos</h1>
-      <p class="text-gray-500 dark:text-gray-400 mt-1">Gestiona los pedidos de la tienda</p>
+    <!-- Header with actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">Pedidos</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Gestiona los pedidos de la tienda</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors whitespace-nowrap" title="Exportar">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Exportar
+            </a>
+        </div>
     </div>
-  </div>
 
-  <div class="card-base overflow-hidden">
-    <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-        <i data-lucide="shopping-cart" class="w-5 h-5 text-cyan-500"></i>
-        Lista de pedidos
-      </h3>
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="stats-card rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pedidos</p>
+                    <p class="mt-1 text-3xl font-bold font-orbitron text-gray-900 dark:text-white">{{ orders_total|default:paginator.count }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                    <i data-lucide="shopping-cart" class="w-6 h-6 text-cyan-600 dark:text-cyan-400"></i>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pendientes</p>
+                    <p class="mt-1 text-3xl font-bold font-orbitron text-yellow-600 dark:text-yellow-400">{{ orders_pendiente|default:0 }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600 dark:text-yellow-400"></i>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Procesando</p>
+                    <p class="mt-1 text-3xl font-bold font-orbitron text-blue-600 dark:text-blue-400">{{ orders_procesando|default:0 }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <i data-lucide="loader" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Enviados</p>
+                    <p class="mt-1 text-3xl font-bold font-orbitron text-purple-600 dark:text-purple-400">{{ orders_enviado|default:0 }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <i data-lucide="truck" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ingresos Totales</p>
+                    <p class="mt-1 text-2xl font-bold font-orbitron text-green-600 dark:text-green-400">${{ total_revenue|default:"0.00" }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50 dark:bg-gray-800/50">
-          <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-            <td class="px-4 py-3 font-mono text-gray-900 dark:text-white">#1001</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">Juan Pérez</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">05/10/2026</td>
-            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">$1,234.00</td>
-            <td class="px-4 py-3"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Completado</span></td>
-            <td class="px-4 py-3 text-right"><a href="{% url 'staff:order_detail' 1001 %}" class="text-cyan-500 hover:text-cyan-600 text-sm font-medium">Ver</a></td>
-          </tr>
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-            <td colspan="6" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No hay pedidos aún</td>
-          </tr>
-        </tbody>
-      </table>
+
+    <!-- Filters -->
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+        <form method="get" class="flex flex-col sm:flex-row gap-4">
+            <div class="flex-1 relative">
+                <label for="search" class="sr-only">Buscar</label>
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <input type="text" name="search" id="search" value="{{ search }}" placeholder="Buscar por ID, cliente, email..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+            </div>
+            <div class="sm:w-40 relative">
+                <i data-lucide="filter" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <select name="status" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent appearance-none transition-all">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente" {% if status_filter == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                    <option value="procesando" {% if status_filter == 'procesando' %}selected{% endif %}>Procesando</option>
+                    <option value="enviado" {% if status_filter == 'enviado' %}selected{% endif %}>Enviado</option>
+                    <option value="completado" {% if status_filter == 'completado' %}selected{% endif %}>Completado</option>
+                    <option value="cancelado" {% if status_filter == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                </select>
+            </div>
+            <div class="sm:w-40 relative">
+                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <select name="date_range" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent appearance-none transition-all">
+                    <option value="">Todo el tiempo</option>
+                    <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Hoy</option>
+                    <option value="week" {% if date_filter == 'week' %}selected{% endif %}>Esta semana</option>
+                    <option value="month" {% if date_filter == 'month' %}selected{% endif %}>Este mes</option>
+                    <option value="custom" {% if date_filter == 'custom' %}selected{% endif %}>Personalizado</option>
+                </select>
+            </div>
+            <button type="submit" class="px-4 py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2">
+                <i data-lucide="filter" class="w-4 h-4"></i>
+                Filtrar
+            </button>
+            {% if search or status_filter or date_filter %}
+                <a href="{% url 'staff:order_list' %}" class="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Limpiar
+                </a>
+            {% endif %}
+        </form>
     </div>
-  </div>
+
+    <!-- Orders Grid (Card View) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="ordersGrid">
+        {% if orders %}
+            {% for order in orders %}
+            <article class="order-card bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm flex flex-col">
+                <!-- Order Header -->
+                <div class="flex items-start justify-between gap-4 mb-4">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-mono text-sm font-semibold text-gray-900 dark:text-white">#{{ order.id }}</span>
+                            <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ order.client_name }}</p>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                </div>
+
+                <!-- Order Info -->
+                <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <span class="flex items-center gap-1.5">
+                        <i data-lucide="package" class="w-4 h-4"></i>
+                        {{ order.items_count }} items
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        {{ order.client_email|truncatechars:20 }}
+                    </span>
+                </div>
+
+                <!-- Total & Actions -->
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Total</p>
+                        <p class="font-bold font-orbitron text-gray-900 dark:text-white">${{ order.total|floatformat:2 }}</p>
+                    </div>
+                    <a href="{% url 'staff:order_detail' order.pk %}" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 rounded-lg bg-cyan-50 dark:bg-cyan-900/20 transition-colors">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                        Ver
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        {% else %}
+            <div class="col-span-full">
+                <div class="p-12 text-center bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800">
+                    <div class="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30 flex items-center justify-center">
+                        <i data-lucide="shopping-cart" class="w-10 h-10 text-cyan-500"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{% if search or status_filter or date_filter %}No se encontraron pedidos{% else %}No hay pedidos aún{% endif %}</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-xs mx-auto">{% if search or status_filter or date_filter %}Prueba ajustando los filtros de búsqueda.{% else %}Los pedidos aparecerán aquí cuando los clientes compren.{% endif %}</p>
+                    {% if search or status_filter or date_filter %}
+                        <a href="{% url 'staff:order_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors mb-4">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                            Limpiar filtros
+                        </a>
+                        <br>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Página {{ page_obj.number }} de {{ paginator.num_pages }} ({{ paginator.count }} total)
+            </p>
+            <nav class="flex items-center gap-2" aria-label="Paginación">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date_range={{ date_filter }}{% endif %}" class="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-1">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                        Anterior
+                    </a>
+                {% endif %}
+                {% for num in paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="px-4 py-2 text-sm bg-cyan-500 text-white rounded-lg font-medium">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date_range={{ date_filter }}{% endif %}" class="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date_range={{ date_filter }}{% endif %}" class="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-1">
+                        Siguiente
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
 {% endblock %}
 
