@@ -20,9 +20,8 @@ class UserListView(StaffRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = User.objects.annotate(
-            address_count=Count('addresses'),
-            order_count=Count('orders'),
-            wishlist_count=Count('wishlist__items')
+            address_count=Count('addresses', distinct=True),
+            wishlist_count=Count('wishlist__items', distinct=True)
         ).order_by('-date_joined')
 
         search = self.request.GET.get('search')
