@@ -8,7 +8,7 @@
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         <!-- Productos -->
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="card-base p-6">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Productos Totales</p>
@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="card-base p-6">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Stock Crítico</p>
@@ -41,7 +41,7 @@
             <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ stats.productos_stock_bajo }} productos con menos de 5 unidades</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="card-base p-6">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios Registrados</p>
@@ -54,7 +54,7 @@
             <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ stats.usuarios_nuevos_mes }} nuevos este mes</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="card-base p-6">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Carritos Activos (24h)</p>
@@ -67,7 +67,7 @@
             <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ stats.direcciones_totales }} direcciones guardadas</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="card-base p-6">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Catálogo</p>
@@ -84,7 +84,7 @@
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Productos por Categoría -->
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+        <div class="card-base p-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <i data-lucide="pie-chart" class="w-5 h-5 text-cyan-500"></i>
                 Productos por Categoría
@@ -95,7 +95,7 @@
         </div>
 
         <!-- Stock Status -->
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+        <div class="card-base p-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <i data-lucide="bar-chart-2" class="w-5 h-5 text-cyan-500"></i>
                 Estado de Stock
@@ -109,7 +109,7 @@
     <!-- Recent Activity Tables -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Productos Recientes -->
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="card-base overflow-hidden">
             <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     <i data-lucide="clock" class="w-5 h-5 text-cyan-500"></i>
@@ -172,7 +172,7 @@
         </div>
 
         <!-- Usuarios Recientes -->
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="card-base overflow-hidden">
             <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     <i data-lucide="user-plus" class="w-5 h-5 text-cyan-500"></i>
@@ -232,7 +232,7 @@
 
     <!-- Alertas Stock Bajo -->
     {% if alertas_stock %}
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-red-200 dark:border-red-800 shadow-sm overflow-hidden">
+    <div class="card-base overflow-hidden border-red-200 dark:border-red-800">
         <div class="p-4 border-b border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-red-800 dark:text-red-400 flex items-center gap-2">
                 <i data-lucide="alert-triangle" class="w-5 h-5"></i>
@@ -276,31 +276,27 @@
     {% endif %}
 
     <!-- Quick Actions -->
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+    <div class="card-base p-6">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <i data-lucide="zap" class="w-5 h-5 text-cyan-500"></i>
             Acciones Rápidas
         </h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="{% url 'staff:product_create' %}" class="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all text-center">
-                <i data-lucide="plus-circle" class="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2"></i>
-                <p class="font-medium text-gray-900 dark:text-white">Nuevo Producto</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Agregar al catálogo</p>
+            <a href="{% url 'staff:product_create' %}" class="btn-primary w-full py-4 text-center">
+                <i data-lucide="plus-circle" class="w-5 h-5 inline-block mr-2"></i>
+                Nuevo Producto
             </a>
-            <a href="{% url 'staff:category_create' %}" class="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all text-center">
-                <i data-lucide="folder-plus" class="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2"></i>
-                <p class="font-medium text-gray-900 dark:text-white">Nueva Categoría</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Organizar catálogo</p>
+            <a href="{% url 'staff:category_create' %}" class="btn-primary w-full py-4 text-center">
+                <i data-lucide="folder-plus" class="w-5 h-5 inline-block mr-2"></i>
+                Nueva Categoría
             </a>
-            <a href="{% url 'staff:brand_create' %}" class="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all text-center">
-                <i data-lucide="tag" class="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2"></i>
-                <p class="font-medium text-gray-900 dark:text-white">Nueva Marca</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Agregar fabricante</p>
+            <a href="{% url 'staff:brand_create' %}" class="btn-primary w-full py-4 text-center">
+                <i data-lucide="tag" class="w-5 h-5 inline-block mr-2"></i>
+                Nueva Marca
             </a>
-            <a href="{% url 'staff:user_list' %}" class="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all text-center">
-                <i data-lucide="user-plus" class="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2"></i>
-                <p class="font-medium text-gray-900 dark:text-white">Gestionar Usuarios</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Ver y editar cuentas</p>
+            <a href="{% url 'staff:user_list' %}" class="btn-secondary w-full py-4 text-center">
+                <i data-lucide="user-plus" class="w-5 h-5 inline-block mr-2"></i>
+                Gestionar Usuarios
             </a>
         </div>
     </div>
