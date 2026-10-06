@@ -1,7 +1,7 @@
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.text import slugify
@@ -424,7 +424,7 @@ class OrderListView(StaffRequiredMixin, ListView):
         context['orders_completado'] = base_qs.filter(status='completado').count()
         context['orders_cancelado'] = base_qs.filter(status='cancelado').count()
         context['total_revenue'] = base_qs.filter(payment_status='pagado').aggregate(
-            total=models.Sum('total')
+            total=Sum('total')
         )['total'] or 0
         context['search'] = self.request.GET.get('search', '')
         context['status_filter'] = self.request.GET.get('status', '')
