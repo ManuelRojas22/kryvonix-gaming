@@ -16,8 +16,11 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
 
-    <!-- Tailwind CSS (compiled) -->
+<!-- Tailwind CSS (compiled) -->
     <link rel="stylesheet" href="{% static_v 'css/output.css' %}">
+
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -51,16 +54,16 @@
 
     <div class="staff-shell">
         <!-- Sidebar -->
-        <aside :class="{ 'is-open': sidebarOpen }"
-       class="staff-sidebar bg-gray-900 dark:bg-gray-950"
+<aside :class="{ 'is-open': sidebarOpen }"
+       class="staff-sidebar bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800"
        aria-label="Sidebar de navegación">
             <!-- Logo -->
-            <div class="flex items-center justify-between h-16 px-6 border-b border-gray-700 dark:border-gray-800">
+            <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-800">
                 <a href="{% url 'staff:dashboard' %}" class="flex items-center gap-2">
                     <span class="w-8 h-8 flex items-center justify-center bg-primary-600 dark:bg-primary-400 text-white rounded-lg font-orbitron text-xl font-bold">K</span>
-                    <span class="font-orbitron text-xl font-bold text-white">Kryvonix <span class="text-cyan-400">STAFF</span></span>
+                    <span class="font-orbitron text-xl font-bold text-gray-900 dark:text-white">Kryvonix <span class="text-cyan-400">STAFF</span></span>
                 </a>
-                <button @click="sidebarOpen = false" class="lg:hidden p-2 text-gray-400 hover:text-white" aria-label="Cerrar sidebar">
+                <button @click="sidebarOpen = false" class="lg:hidden p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white" aria-label="Cerrar sidebar">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -68,7 +71,7 @@
             <!-- Navigation -->
             <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto" aria-label="Navegación principal">
                 <!-- Dashboard -->
-                <a href="{% url 'staff:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}bg-cyan-500/10 text-cyan-400{% else %}text-gray-300 hover:text-white hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                <a href="{% url 'staff:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}bg-cyan-500/10 text-cyan-600 dark:text-cyan-400{% else %}text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
                     <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
                     <span>Dashboard</span>
                 </a>
@@ -76,15 +79,15 @@
                 <!-- Catálogo Section -->
                 <div>
                     <h3 class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Catálogo</h3>
-                    <a href="{% url 'staff:product_list' %}" class="{% if 'product' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-400{% else %}text-gray-300 hover:text-white hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                    <a href="{% url 'staff:product_list' %}" class="{% if 'product' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-600 dark:text-cyan-400{% else %}text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
                         <i data-lucide="package" class="w-5 h-5 flex-shrink-0"></i>
                         <span>Productos</span>
                     </a>
-                    <a href="{% url 'staff:category_list' %}" class="{% if 'category' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-400{% else %}text-gray-300 hover:text-white hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                    <a href="{% url 'staff:category_list' %}" class="{% if 'category' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-600 dark:text-cyan-400{% else %}text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
                         <i data-lucide="folder-tree" class="w-5 h-5 flex-shrink-0"></i>
                         <span>Categorías</span>
                     </a>
-                    <a href="{% url 'staff:brand_list' %}" class="{% if 'brand' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-400{% else %}text-gray-300 hover:text-white hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                    <a href="{% url 'staff:brand_list' %}" class="{% if 'brand' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-600 dark:text-cyan-400{% else %}text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
                         <i data-lucide="tag" class="w-5 h-5 flex-shrink-0"></i>
                         <span>Marcas</span>
                     </a>
@@ -93,7 +96,7 @@
                 <!-- Usuarios Section -->
                 <div>
                     <h3 class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Usuarios</h3>
-                    <a href="{% url 'staff:user_list' %}" class="{% if 'user' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-400{% else %}text-gray-300 hover:text-white hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                    <a href="{% url 'staff:user_list' %}" class="{% if 'user' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-600 dark:text-cyan-400{% else %}text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
                         <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
                         <span>Gestión de usuarios</span>
                     </a>
@@ -102,7 +105,7 @@
                 <!-- Pedidos Section -->
                 <div>
                     <h3 class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pedidos</h3>
-                    <a href="{% url 'staff:order_list' %}" class="{% if 'order' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-400{% else %}text-gray-300 hover:text-white hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                    <a href="{% url 'staff:order_list' %}" class="{% if 'order' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-600 dark:text-cyan-400{% else %}text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
                         <i data-lucide="shopping-cart" class="w-5 h-5 flex-shrink-0"></i>
                         <span>Lista de pedidos</span>
                     </a>
@@ -111,7 +114,7 @@
                 <!-- Reportes Section -->
                 <div>
                     <h3 class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reportes</h3>
-                    <a href="{% url 'staff:reports_dashboard' %}" class="{% if 'reports' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-400{% else %}text-gray-300 hover:text-white hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                    <a href="{% url 'staff:reports_dashboard' %}" class="{% if 'reports' in request.resolver_match.url_name %}bg-cyan-500/10 text-cyan-600 dark:text-cyan-400{% else %}text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
                         <i data-lucide="bar-chart-2" class="w-5 h-5 flex-shrink-0"></i>
                         <span>Dashboard de reportes</span>
                     </a>
@@ -119,8 +122,8 @@
             </nav>
 
             <!-- Footer sidebar -->
-            <div class="p-4 border-t border-gray-700">
-                <a href="{% url 'catalog:home' %}" target="_blank" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
+            <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+                <a href="{% url 'catalog:home' %}" target="_blank" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                     <i data-lucide="external-link" class="w-5 h-5 flex-shrink-0"></i>
                     <span class="text-sm">Ver tienda</span>
                 </a>
@@ -225,7 +228,10 @@
         }
     </script>
 
-    {% block extra_scripts %}{% endblock %}
+{% block extra_scripts %}{% endblock %}
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         // Initialize Lucide icons

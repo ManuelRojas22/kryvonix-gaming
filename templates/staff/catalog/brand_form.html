@@ -5,78 +5,137 @@
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                {% if object %}Editar Marca{% else %}Nueva Marca{% endif %}
-            </h2>
-            <a href="{% url 'staff:brand_list' %}" class="text-sm text-cyan-500 hover:text-cyan-600 font-medium">Volver a la lista</a>
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <!-- Header -->
+        <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                    <i data-lucide="{% if object %}edit{% else %}plus-circle{% endif %}" class="w-5 h-5 text-cyan-600 dark:text-cyan-400"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold font-orbitron text-gray-900 dark:text-white">
+                        {% if object %}Editar Marca{% else %}Nueva Marca{% endif %}
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                        {% if object %}Actualiza la información de la marca{% else %}Completa los datos para crear una nueva marca{% endif %}
+                    </p>
+                </div>
+            </div>
+            <a href="{% url 'staff:brand_list' %}" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors whitespace-nowrap">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Volver
+            </a>
         </div>
 
-        <form method="post" class="p-6 space-y-6" enctype="multipart/form-data">
+        <form method="post" class="p-6 space-y-7" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <!-- Basic Info -->
-            <div class="space-y-4">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider text-cyan-500">Información Básica</h3>
+            <!-- Basic Info Section -->
+            <fieldset class="space-y-6">
+                <legend class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider text-cyan-500 flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4"></i>
+                    Información Básica
+                </legend>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
-                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ form.name.label }} <span class="text-red-500">*</span></label>
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            {{ form.name.label }} <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
                         {{ form.name }}
                         {% if form.name.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.name.errors.0 }}</p>
+                            <p class="mt-1.5 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                {{ form.name.errors.0 }}
+                            </p>
                         {% endif %}
                     </div>
                     <div>
                         <label for="{{ form.slug.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ form.slug.label }}</label>
                         {{ form.slug }}
                         {% if form.slug.help_text %}
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.slug.help_text }}</p>
+                            <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                                {{ form.slug.help_text }}
+                            </p>
                         {% endif %}
                         {% if form.slug.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.slug.errors.0 }}</p>
+                            <p class="mt-1.5 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                {{ form.slug.errors.0 }}
+                            </p>
                         {% endif %}
                     </div>
                 </div>
 
+                <!-- Logo Upload with Preview -->
                 <div>
                     <label for="{{ form.logo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ form.logo.label }}</label>
-                    {{ form.logo }}
-                    {% if form.logo.value %}
-                        <div class="mt-2">
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Logo actual:</p>
-                            <img src="{{ form.logo.value.url }}" alt="{{ object.name }}" class="mt-1 w-20 h-20 rounded-lg object-contain bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-6 flex-wrap">
+                        <div class="flex-1 min-w-[200px]">
+                            {{ form.logo }}
+                            {% if form.logo.errors %}
+                                <p class="mt-1.5 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                    {{ form.logo.errors.0 }}
+                                </p>
+                            {% endif %}
+                            {% if form.logo.help_text %}
+                                <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                    <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                                    {{ form.logo.help_text }}
+                                </p>
+                            {% endif %}
                         </div>
-                    {% endif %}
-                    {% if form.logo.help_text %}
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.logo.help_text }}</p>
-                    {% endif %}
-                    {% if form.logo.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.logo.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <div class="flex items-end">
-                    <div class="w-full flex items-center gap-2">
-                        {{ form.is_active }}
-                        <label for="{{ form.is_active.id_for_label }}" class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">{{ form.is_active.label }}</label>
+                        {% if form.logo.value %}
+                        <div class="relative w-20 h-20 flex-shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden">
+                            <img src="{{ form.logo.value.url }}" alt="{{ object.name }}" class="w-full h-full object-contain p-1">
+                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <i data-lucide="eye" class="w-5 h-5 text-white"></i>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="w-20 h-20 flex-shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center">
+                            <i data-lucide="image-off" class="w-8 h-8 text-gray-400 dark:text-gray-500"></i>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
-            </div>
+
+                <!-- Active Toggle -->
+                <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                                <i data-lucide="toggle-right" class="w-5 h-5 text-cyan-600 dark:text-cyan-400"></i>
+                            </div>
+                            <div>
+                                <label for="{{ form.is_active.id_for_label }}" class="text-sm font-medium text-gray-900 dark:text-white cursor-pointer">{{ form.is_active.label }}</label>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">La marca será visible en la tienda para los clientes</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}" class="cursor-pointer block w-11 h-6 bg-gray-300 dark:bg-gray-600 rounded-full peer relative after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:bg-white after:rounded-full after:shadow-md after:transition-all peer-checked:bg-cyan-500 peer-checked:after:translate-x-full peer-focus:ring-2 peer-focus:ring-cyan-500/50" aria-hidden="true"></label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
 
             <!-- Actions -->
             <div class="pt-4 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
-                <a href="{% url 'staff:brand_list' %}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors text-center">Cancelar</a>
-                <button type="submit" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors text-center">
-                    <i data-lucide="save" class="w-4 h-4 inline-block mr-2"></i>
-                    {% if object %}Actualizar{% else %}Crear{% endif %}
+                <a href="{% url 'staff:brand_list' %}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-colors text-center">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Cancelar
+                </a>
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-xl transition-colors shadow-sm hover:shadow-md text-center">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    {% if object %}Actualizar Marca{% else %}Crear Marca{% endif %}
                 </button>
             </div>
         </form>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_scripts %}
@@ -104,6 +163,38 @@
             slugInput.addEventListener('input', function() {
                 slugGenerated = true;
                 this.dataset.autoGenerated = 'false';
+            });
+        }
+
+        // Logo preview on file select
+        const logoInput = document.querySelector('[name="logo"]');
+        if (logoInput) {
+            logoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Remove existing preview
+                        const existingPreview = document.querySelector('.logo-preview');
+                        if (existingPreview) existingPreview.remove();
+
+                        // Create new preview
+                        const preview = document.createElement('div');
+                        preview.className = 'logo-preview relative w-20 h-20 flex-shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden';
+                        preview.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview" class="w-full h-full object-contain p-1">
+                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <i data-lucide="eye" class="w-5 h-5 text-white"></i>
+                            </div>
+                        `;
+                        // Insert after the file input
+                        logoInput.parentElement.appendChild(preview);
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
         }
 

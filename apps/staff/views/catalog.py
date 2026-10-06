@@ -94,6 +94,14 @@ class BrandListView(StaffRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['search'] = self.request.GET.get('search', '')
         context['is_active_filter'] = self.request.GET.get('is_active', '')
+        
+        # Stats for overview cards
+        base_qs = Brand.objects.all()
+        context['brands_total'] = base_qs.count()
+        context['brands_active'] = base_qs.filter(is_active=True).count()
+        context['brands_inactive'] = base_qs.filter(is_active=False).count()
+        context['brands_with_logo'] = base_qs.exclude(logo='').exclude(logo__isnull=True).count()
+        
         return context
 
 
