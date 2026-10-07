@@ -6,20 +6,21 @@
 {% block extra_head %}
 <style>
     .brand-card {
-        transition: all 0.2s ease;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
     .brand-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0,0,0,.08);
     }
     .dark .brand-card:hover {
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        box-shadow: 0 12px 30px rgba(0,0,0,.35);
     }
     .brand-logo-preview {
-        width: 48px;
-        height: 48px;
+        width: 56px;
+        height: 56px;
         object-fit: contain;
         background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        border-radius: 1rem;
     }
     .dark .brand-logo-preview {
         background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
@@ -27,23 +28,43 @@
     .stats-card {
         background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
         border: 1px solid #e5e7eb;
+        transition: box-shadow .2s ease, transform .2s ease;
+    }
+    .stats-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,.07);
+        transform: translateY(-2px);
     }
     .dark .stats-card {
         background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
         border: 1px solid #374151;
+    }
+    .filter-input {
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .filter-input:focus {
+        border-color: transparent;
+        box-shadow: 0 0 0 2px rgba(6,182,212,.4);
+    }
+    @media (max-width: 640px) {
+        .brand-grid { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="space-y-6">
-    <!-- Header with actions -->
+    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white">Marcas</h1>
+            <h1 class="text-2xl font-bold font-orbitron text-gray-900 dark:text-white flex items-center gap-3">
+                <span class="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl text-white">
+                    <i data-lucide="tag" class="w-5 h-5"></i>
+                </span>
+                Marcas
+            </h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1">Gestiona las marcas de productos</p>
         </div>
-        <a href="{% url 'staff:brand_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-sm hover:shadow-md">
+        <a href="{% url 'staff:brand_create' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/35 transition-all">
             <i data-lucide="plus" class="w-5 h-5"></i>
             Nueva Marca
         </a>
@@ -98,42 +119,51 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
-        <form method="get" class="flex flex-col sm:flex-row gap-4">
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="filter" class="w-5 h-5 text-cyan-500"></i>
+                Filtros
+            </h3>
+            {% if search or is_active_filter %}
+                <a href="{% url 'staff:brand_list' %}" class="text-sm text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Limpiar todo
+                </a>
+            {% endif %}
+        </div>
+        <form method="get" class="flex flex-col sm:flex-row gap-4" id="filterForm">
             <div class="flex-1 relative">
                 <label for="search" class="sr-only">Buscar</label>
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                <input type="text" name="search" id="search" value="{{ search }}" placeholder="Buscar por nombre..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
+                <input type="text" name="search" id="search" value="{{ search }}" placeholder="Buscar por nombre..." class="filter-input w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all">
             </div>
-            <div class="sm:w-40 relative">
+            <div class="sm:w-44 relative">
                 <i data-lucide="filter" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                <select name="is_active" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent appearance-none transition-all">
-                    <option value="">Todas</option>
+                <select name="is_active" class="filter-input w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent appearance-none transition-all" style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%2212%22 height%3D%2212%22 viewBox%3D%220%200%2012%2012%22%3E%3Cpath fill%3D%22%236b7280%22 d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right .75rem center;">
+                    <option value="">Estado</option>
                     <option value="true" {% if is_active_filter == 'true' %}selected{% endif %}>Activas</option>
                     <option value="false" {% if is_active_filter == 'false' %}selected{% endif %}>Inactivas</option>
                 </select>
             </div>
-            <button type="submit" class="px-4 py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2">
+            <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2 whitespace-nowrap">
                 <i data-lucide="filter" class="w-4 h-4"></i>
                 Filtrar
             </button>
-            {% if search or is_active_filter %}
-                <a href="{% url 'staff:brand_list' %}" class="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                    Limpiar
-                </a>
-            {% endif %}
+            <a href="{% url 'staff:brand_list' %}" class="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-colors inline-flex items-center justify-center whitespace-nowrap">
+                Limpiar
+            </a>
         </form>
     </div>
 
-    <!-- Brands Grid (Card View) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="brandsGrid">
+    <!-- Brands Grid -->
+    <div class="brand-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="brandsGrid">
         {% if brands %}
             {% for brand in brands %}
             <article class="brand-card bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm flex flex-col">
-                <!-- Brand Header -->
+                <!-- Header -->
                 <div class="flex items-start gap-4 mb-4">
-                    <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 brand-logo-preview">
+                    <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 brand-logo-preview overflow-hidden">
                         {% if brand.logo %}
                             <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="w-full h-full object-contain rounded-lg">
                         {% else %}
@@ -144,16 +174,16 @@
                         <h3 class="font-semibold text-gray-900 dark:text-white truncate">{{ brand.name }}</h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">{{ brand.slug }}</p>
                     </div>
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {% if brand.is_active %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{% else %}bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400{% endif %}">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {% if brand.is_active %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{% else %}bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400{% endif %}">
                         {% if brand.is_active %}Activa{% else %}Inactiva{% endif %}
                     </span>
                 </div>
 
-                <!-- Stats -->
+                <!-- Stats row -->
                 <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4 pt-3 border-t border-gray-100 dark:border-gray-800">
                     <span class="flex items-center gap-1.5">
                         <i data-lucide="package" class="w-4 h-4"></i>
-                        {{ brand.products_count }} productos
+                        {{ brand.products_count }} producto{{ brand.products_count|pluralize }}
                     </span>
                     {% if brand.logo %}
                     <span class="flex items-center gap-1.5 text-green-600 dark:text-green-400">
@@ -169,15 +199,15 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
-                    <a href="{% url 'staff:brand_edit' brand.pk %}" class="text-sm font-medium text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 flex items-center gap-1">
+                <div class="mt-auto flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <a href="{% url 'staff:brand_edit' brand.pk %}" class="text-sm font-medium text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 flex items-center gap-1 transition-colors">
                         <i data-lucide="edit" class="w-4 h-4"></i>
                         Editar
                     </a>
                     <form method="post" action="{% url 'staff:brand_delete' brand.pk %}" class="inline" onsubmit="return confirmDelete(event, '{{ brand.name|escapejs }}')">
                         {% csrf_token %}
-                        <button type="submit" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Eliminar">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <button type="submit" class="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all" title="Eliminar">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
                         </button>
                     </form>
                 </div>
@@ -189,16 +219,16 @@
                     <div class="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30 flex items-center justify-center">
                         <i data-lucide="tag" class="w-10 h-10 text-cyan-500"></i>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay marcas</h3>
-                    <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-xs mx-auto">{% if search or is_active_filter %}No se encontraron marcas con los filtros actuales.{% else %}Comienza creando tu primera marca.{% endif %}</p>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{% if search or is_active_filter %}Sin resultados{% else %}No hay marcas{% endif %}</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">{% if search or is_active_filter %}No se encontraron marcas con los filtros actuales. Intenta ajustar tu búsqueda.{% else %}Comienza creando tu primera marca.{% endif %}</p>
                     {% if search or is_active_filter %}
-                        <a href="{% url 'staff:brand_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors mb-4">
-                            <i data-lucide="x" class="w-4 h-4"></i>
+                        <a href="{% url 'staff:brand_list' %}" class="inline-flex items-center gap-2 px-5 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-colors mb-4">
+                            <i data-lucide="x" class="w-5 h-5"></i>
                             Limpiar filtros
                         </a>
                         <br>
                     {% endif %}
-                    <a href="{% url 'staff:brand_create' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-xl transition-colors shadow-sm hover:shadow-md">
+                    <a href="{% url 'staff:brand_create' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/35 transition-all">
                         <i data-lucide="plus" class="w-5 h-5"></i>
                         Crear Marca
                     </a>
@@ -209,28 +239,28 @@
 
     <!-- Pagination -->
     {% if is_paginated %}
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Página {{ page_obj.number }} de {{ paginator.num_pages }} ({{ paginator.count }} total)
+                Mostrando <span class="font-medium">{{ brands.start_index }}</span>–<span class="font-medium">{{ brands.end_index }}</span> de <span class="font-medium">{{ paginator.count }}</span> marcas
             </p>
-            <nav class="flex items-center gap-2" aria-label="Paginación">
+            <nav class="flex items-center gap-1.5" aria-label="Paginación">
                 {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if is_active_filter %}&is_active={{ is_active_filter }}{% endif %}" class="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-1">
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if is_active_filter %}&is_active={{ is_active_filter }}{% endif %}" class="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-1.5" aria-label="Página anterior">
                         <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                        Anterior
+                        <span class="hidden sm:inline">Anterior</span>
                     </a>
                 {% endif %}
                 {% for num in paginator.page_range %}
                     {% if page_obj.number == num %}
-                        <span class="px-4 py-2 text-sm bg-cyan-500 text-white rounded-lg font-medium">{{ num }}</span>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if is_active_filter %}&is_active={{ is_active_filter }}{% endif %}" class="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">{{ num }}</a>
+                        <span class="px-4 py-2 text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-medium">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-2' and num < page_obj.number|add:'2' %}
+                        <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if is_active_filter %}&is_active={{ is_active_filter }}{% endif %}" class="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium">{{ num }}</a>
                     {% endif %}
                 {% endfor %}
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if is_active_filter %}&is_active={{ is_active_filter }}{% endif %}" class="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-1">
-                        Siguiente
+                    <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if is_active_filter %}&is_active={{ is_active_filter }}{% endif %}" class="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-1.5" aria-label="Página siguiente">
+                        <span class="hidden sm:inline">Siguiente</span>
                         <i data-lucide="chevron-right" class="w-4 h-4"></i>
                     </a>
                 {% endif %}
@@ -278,4 +308,3 @@
     });
 </script>
 {% endblock %}
-
